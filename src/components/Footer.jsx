@@ -7,14 +7,19 @@ import f4 from '../assets/footer/footer-04.jpg';
 
 const THUMBS = [f1, f2, f3, f4];
 
+/*
+  Type size lives on the <ul> so the em-based row gap tracks the label size.
+  text-copy is fluid against --sf (100vw), which collapses to ~4px at phone
+  widths, so mobile pins a readable size and hands back to the fluid token at md.
+*/
 function LinkColumn({ links }) {
   return (
-    <ul className="flex flex-col gap-[0.6em] text-center">
+    <ul className="flex flex-col gap-[0.6em] text-center font-serif text-[15px] leading-[1.6] md:text-copy">
       {links.map((l) => (
         <li key={l.to}>
           <Link
             to={l.to}
-            className="font-serif text-copy leading-[1.6] text-white transition-opacity duration-200 hover:opacity-65"
+            className="inline-block text-white transition-opacity duration-200 hover:opacity-65"
           >
             {l.label}
           </Link>
@@ -27,7 +32,7 @@ function LinkColumn({ links }) {
 export default function Footer() {
   return (
     <footer className="w-full bg-black text-white">
-      <div className="mx-auto w-full max-w-[1600px] px-[3vw] pb-[2.2vw] pt-[3.4vw]">
+      <div className="mx-auto w-full max-w-[1600px] px-[6vw] pb-[9vw] pt-[10vw] md:px-[3vw] md:pb-[2.2vw] md:pt-[3.4vw]">
         <p className="text-center font-serif text-f21 leading-[1.2] tracking-[0.42px]">
           Visual Perfection
         </p>
@@ -36,7 +41,7 @@ export default function Footer() {
         </p>
 
         {/* Thumbnail strip with the nav columns flanking it. */}
-        <div className="relative mt-[2.6vw]">
+        <div className="relative mt-[7vw] md:mt-[2.6vw]">
           {/* 62.8% of the viewport in the source; scaled up here to cancel the
               container's 3vw side padding so the strip lands at the same width. */}
           <div className="mx-auto flex w-[66.8%] max-w-[1005px]">
@@ -69,12 +74,12 @@ export default function Footer() {
         </div>
 
         {/* Mobile: columns stack under the strip. */}
-        <div className="mt-[6vw] flex justify-center gap-[14vw] md:hidden">
+        <div className="mt-[8vw] flex justify-center gap-[16vw] md:hidden">
           <LinkColumn links={FOOTER_LINKS.left} />
           <LinkColumn links={FOOTER_LINKS.right} />
         </div>
 
-        <p className="mt-[1.6vw] text-center">
+        <p className="mt-[8vw] text-center md:mt-[1.6vw]">
           <a
             href={INSTAGRAM_URL}
             target="_blank"
@@ -86,7 +91,7 @@ export default function Footer() {
         </p>
 
         {/* Legal row */}
-        <div className="mt-[2.4vw] grid grid-cols-1 gap-[3vw] font-serif text-f14 leading-[1.2] tracking-[0.28px] md:grid-cols-3 md:gap-0">
+        <div className="mt-[7vw] grid grid-cols-1 gap-[3vw] font-serif text-f14 leading-[1.2] tracking-[0.28px] md:mt-[2.4vw] md:grid-cols-3 md:gap-0">
           <p className="text-center md:max-w-[17ch] md:text-left"></p>
           <p className="text-center">
             <a

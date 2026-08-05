@@ -1,0 +1,153 @@
+@import 'tailwindcss';
+
+@import '@fontsource/eb-garamond/400.css';
+@import '@fontsource/eb-garamond/400-italic.css';
+@import '@fontsource/playfair-display/400.css';
+@import '@fontsource/playfair-display/500.css';
+@import '@fontsource/playfair-display/600.css';
+@import '@fontsource/playfair-display/700.css';
+@import '@fontsource/gloock/400.css';
+
+/*
+  FONTS — the site's Wix *theme* declares Gloock/Questrial, but almost every
+  component overrides that. Reading computed styles off the saved pages, the
+  fonts actually rendered are:
+
+    orig_adobe_garamond_pro  -> body serif (nearly all copy)
+    orig_butlerlight         -> display serif (headings, nav, @handle)
+    gloock                   -> only VIBRANT / TIMELESS / AUTHENTIC
+
+  Neither Garamond Pro nor Butler is freely licensed and neither was captured
+  by "Save Page As" (Wix serves them from parastorage). Substituted with the
+  closest free equivalents:
+    Adobe Garamond Pro -> EB Garamond      (Garamond revival, very close)
+    Butler Light       -> Playfair Display (high-contrast display serif)
+  Gloock is genuine. Swap the @import + --font-* tokens if you license the
+  originals.
+
+  SCALING — Wix scales type and spacing proportionally to viewport width
+  against a 1600px cap:
+      --scaling-factor: clamp(0px, 100vw, 1600px)
+  `--sf` is that factor, so the fluid sizes below are direct translations of
+  the values measured at desktop rather than approximations.
+*/
+:root {
+  --sf: min(100vw, 1600px);
+}
+
+@theme {
+  --font-display: 'Playfair Display', 'Butler', Georgia, serif;
+  --font-serif: 'EB Garamond', 'Adobe Garamond Pro', Garamond, Georgia, serif;
+  --font-gloock: 'Gloock', Georgia, serif;
+  --font-stories: 'Edu VIC WA NT Hand';
+
+  /* Palette from the site's Wix theme tokens (--color_NN) + computed styles. */
+  --color-cream: #f9f7f3;
+  /* page background          */
+  --color-band: #efeae0;
+  /* alternating section band  */
+  --color-ink: #181716;
+  /* body text (rgb 24,23,22)  */
+  --color-black: #000000;
+  /* headings, footer bg       */
+  --color-maroon: #6e1937;
+  /* --color_18, button hover  */
+  --color-rose: #a6516d;
+  /* --color_17                */
+  --color-blush: #d9afbd;
+  /* --color_16                */
+  --color-stone: #8c8682;
+  /* --color_25                */
+  --color-hair: #c4beb3;
+  /* --color_23, hairlines     */
+
+  /* Fluid display sizes — measured px at a 1600px scaling factor. */
+  --text-praise: calc(111.45 * var(--sf) / 1600);
+  /* "PRAISE"            */
+  --text-hero: calc(84.7 * var(--sf) / 1600);
+  /* "CINEMATIC"         */
+  --text-h1: calc(53.55 * var(--sf) / 1600);
+  /* mission headline    */
+  --text-h2: calc(51.89 * var(--sf) / 1600);
+  /* "The STORIES"       */
+  --text-stories: calc(58.9 * var(--sf) / 1600);
+  /* VIBRANT / TIMELESS  */
+  --text-name: calc(37.59 * var(--sf) / 1600);
+  /* "PREET & MANNY"     */
+
+  /* Fluid body sizes. */
+  --text-lead: calc(23.04 * var(--sf) / 1600);
+  --text-body: calc(19.28 * var(--sf) / 1600);
+  --text-copy: calc(18.21 * var(--sf) / 1600);
+  /* buttons, footer nav */
+  --text-eyebrow: calc(17.33 * var(--sf) / 1600);
+  /* "OUR MISSION"       */
+
+  /* Fixed sizes — these do not scale in the source. */
+  --text-nav: 16px;
+  --text-f21: 21px;
+  /* footer "Visual Perfection" */
+  --text-f35: 35px;
+  /* footer "Follow Along"      */
+  --text-f14: 14px;
+  /* footer legal row           */
+}
+
+@layer base {
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+
+  /*
+    The "Cinematic Journeys" video band has angled top and bottom edges in the
+    source ([data-testid="top-divider"] / "bottom-divider"). Home.mp4 shows
+    these are shallow *chevrons* with off-centre apexes, not straight
+    diagonals — traced from the recording at 1920x1080.
+  */
+  .clip-angled {
+    clip-path: polygon(0 1%, 73% 9%, 100% 5%, 100% 95%, 24% 100%, 0 88%);
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+  ───────────────────────────────────────────────────────────────────────────
+  OPTIONAL EFFECT (easy to remove) — "Vibrant / Timeless / Authentic" pillars.
+  Images render desaturated and return to full colour on hover. Gated behind
+  `@media (hover: hover)`, so touch devices (mobile/tablet) skip the effect
+  entirely and always show full colour.
+
+  TO REVERT, do either:
+    • delete this whole block — the `pillar-desat` class in Home.jsx then does
+      nothing, so no markup change is required; or
+    • remove `pillar-desat` from the <li> in Home.jsx (the "Vibrant / Timeless
+      / Authentic" section).
+  ───────────────────────────────────────────────────────────────────────────
+*/
+@layer utilities {
+  @media (hover: hover) {
+    .pillar-desat img {
+      filter: grayscale(1);
+      transition: filter 500ms ease-out;
+    }
+
+    .pillar-desat:hover img {
+      filter: grayscale(0);
+    }
+  }
+}

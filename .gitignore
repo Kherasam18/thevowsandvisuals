@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Claude Code — personal/machine-specific overrides, not shared config
+.claude/settings.local.json
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Editor / OS cruft
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*

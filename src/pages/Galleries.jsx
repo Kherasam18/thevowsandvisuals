@@ -1,0 +1,148 @@
+import { useState } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import Button from '../components/Button';
+import Lightbox from '../components/Lightbox';
+import hero1 from '../assets/galleries/hero-01.jpg';
+import hero2 from '../assets/galleries/hero-02.jpg';
+import hero3 from '../assets/galleries/hero-03.jpg';
+
+/**
+ * Hero slideshow.
+ *
+ * Each repeater item in the source holds three 1844x781 images: 554-min.jpg
+ * (a London-bridge frame, repeated as the item background) plus one distinct
+ * banner. The distinct banners are what cycle:
+ *   AVI05393-min -> snow mountain, 545-min -> vintage car, HSP_7749 -> confetti
+ *
+ * The "ICONIC WORK" heading is NOT part of the repeater — it lives in the
+ * following section (comp-m8hhmpve) and stays put while the images change.
+ * The repeater's own "Iconic/WORK" and "Client/PRAISE" labels are leftover
+ * Wix template fields that never render.
+ *
+ * Galleries.mp4 opens on the vintage car (slide 2), so the source may
+ * auto-advance or start at a different index; the arrows are the only
+ * navigation actually observed, so this is manual-only.
+ */
+const SLIDES = [hero1, hero2, hero3];
+
+// 25 masonry images, ordered by filename to match source DOM order.
+const GRID = Object.entries(
+  import.meta.glob('../assets/galleries/grid-*.jpg', { eager: true, import: 'default' })
+)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, src]) => src);
+
+export default function Galleries() {
+  const [slide, setSlide] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+
+  const prev = () => setSlide((s) => (s - 1 + SLIDES.length) % SLIDES.length);
+  const next = () => setSlide((s) => (s + 1) % SLIDES.length);
+
+  return (
+    <>
+      {/* Hero slideshow — the heading overlaps the image's lower edge. */}
+      <section className="relative w-full">
+        <div className="relative h-[34vw] min-h-[240px] w-full overflow-hidden">
+          {SLIDES.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt=""
+              aria-hidden={i !== slide}
+              className={
+                'absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out ' +
+                (i === slide ? 'opacity-100' : 'opacity-0')
+              }
+            />
+          ))}
+
+          <div className="absolute bottom-[1.4vw] right-[3vw] flex items-center gap-[3vw]">
+            <button
+              type="button"
+              onClick={prev}
+              aria-label="Previous slide"
+              className="text-white/90 transition-opacity duration-200 hover:opacity-70"
+            >
+              <ArrowLeft size={30} strokeWidth={1} />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next slide"
+              className="text-white/90 transition-opacity duration-200 hover:opacity-70"
+            >
+              <ArrowRight size={30} strokeWidth={1} />
+            </button>
+          </div>
+        </div>
+
+        <h1 className="pointer-events-none relative z-10 -mt-[2vw] text-center font-display text-[calc(142*var(--sf)/1600)] uppercase leading-[1] text-black">
+          Iconic Work
+        </h1>
+      </section>
+
+      {/* Intro copy */}
+      <section className="w-full bg-cream px-[6vw] pt-[3vw]">
+        <p className="text-center font-serif text-[calc(30*var(--sf)/1600)] uppercase leading-[1.55] tracking-[0.01em] text-ink">
+          Step into a world where
+          <br />
+          love twirls in slow motion,
+          <br />
+          trapped in the misty haze of time.
+        </p>
+
+        <div className="mx-auto mt-[3.4vw] max-w-[46rem]">
+          {/*
+            Decorative drop cap — rendered with ::first-letter in the source.
+            Tailwind's `first-letter:` variant is the direct equivalent.
+          */}
+          <p
+            className="font-serif text-[calc(22*var(--sf)/1600)] leading-[1.42] text-ink
+              first-letter:float-left first-letter:mr-[0.06em] first-letter:mt-[0.06em]
+              first-letter:font-display first-letter:text-[3.9em] first-letter:leading-[0.78]"
+          >
+            These pictures? oh, they’re more than just pixels—each grin and teardrop whispers of
+            mysteries untold. we wield our cameras like enchanted wands, capturing fleeting moments
+            before they vanish into the void. for the couples, the wedding is a whirlwind of joy. for
+            us, it’s an endless maze of tiny stories, waiting to be plucked from the air and sealed
+            forever.
+          </p>
+
+          <div className="mt-[1.6vw] flex justify-end">
+            <Button to="/enquiry">Enquire</Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Masonry photo wall */}
+      <section className="w-full bg-cream pb-[4vw] pt-[3vw]">
+        <div className="columns-2 gap-[10px] px-[10px] md:columns-4">
+          {GRID.map((src, i) => (
+            <button
+              key={src}
+              type="button"
+              onClick={() => setLightboxIndex(i)}
+              aria-label={`Open image ${i + 1} of ${GRID.length}`}
+              className="mb-[10px] block w-full overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-maroon"
+            >
+              <img
+                src={src}
+                alt=""
+                loading="lazy"
+                className="w-full transition-transform duration-[600ms] ease-out hover:scale-[1.04]"
+              />
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <Lightbox
+        images={GRID}
+        index={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onNavigate={setLightboxIndex}
+      />
+    </>
+  );
+}

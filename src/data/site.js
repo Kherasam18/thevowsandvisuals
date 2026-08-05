@@ -15,20 +15,19 @@ export const NAV_LINKS = [
 ];
 
 export const SOCIALS = [
-  { label: 'Instagram', href: 'https://www.instagram.com/infinite_memories09/?hl=en', icon: instagram },
-  { label: 'Facebook', href: 'https://www.facebook.com/InfiniteMemories09/', icon: facebook },
+  { label: 'Instagram', href: 'https://www.instagram.com/thevowsandvisuals/?hl=en', icon: instagram },
+  { label: 'Facebook', href: 'https://www.facebook.com/', icon: facebook },
   // Source links to Wix's own company page here — kept verbatim rather than "corrected".
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/wix-com', icon: linkedin },
-  { label: 'YouTube', href: 'https://www.youtube.com/@infinitememories', icon: youtube },
-  { label: 'Vimeo', href: 'https://vimeo.com/user39042617', icon: vimeo },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/', icon: linkedin },
+  { label: 'YouTube', href: 'https://www.youtube.com/', icon: youtube },
 ];
 
-export const WHATSAPP_URL = 'https://wa.me/+918506808885';
+export const WHATSAPP_URL = 'https://wa.me/+919034322947';
 export const INSTAGRAM_URL = 'https://www.instagram.com/thevowsandvisuals/?hl=en';
 
 export const CONTACT = {
-  email: 'infinitememories13@gmail.com',
-  phone: '+91 85068 08885',
+  email: 'kashishnarula@gmail.com',
+  phone: '+91 9034322947',
   regions: 'INDIA, DUBAI, THAILAND, BALI & BEYOND',
 };
 

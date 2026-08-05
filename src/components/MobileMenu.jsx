@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { NAV_LINKS, SOCIALS, CONTACT } from '../data/site';
+import { NAV_LINKS, SOCIALS, CONTACT, WHATSAPP_URL } from '../data/site';
 import portrait from '../assets/chrome/menu-portrait.jpg';
+import whatsapp from '../assets/icons/whatsapp.png';
 
 /**
  * Hamburger overlay.
@@ -95,10 +96,26 @@ export default function MobileMenu({ open, onClose }) {
               {CONTACT.email}
             </a>
             <br />
-            {CONTACT.phone}
+            {/* tel: needs the bare number — strip the display spacing. */}
+            <a href={`tel:${CONTACT.phone.replace(/[^\d+]/g, '')}`} className="hover:underline">
+              {CONTACT.phone}
+            </a>
           </p>
 
           <ul className="mt-[5vw] flex items-center gap-[5vw]">
+            {/* WhatsApp leads the row, as it does in the desktop header. Sized a
+                touch larger than the rest: its tail sits inside the icon box, so
+                the glyph reads smaller at matching heights. */}
+            <li>
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label="WhatsApp"
+              >
+                <img src={whatsapp} alt="" aria-hidden="true" className="h-[22px] w-auto" />
+              </a>
+            </li>
             {SOCIALS.map((s) => (
               <li key={s.label}>
                 <a href={s.href} target="_blank" rel="noreferrer noopener" aria-label={s.label}>

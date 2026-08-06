@@ -60,7 +60,7 @@ export default function Navbar({ overlay = false }) {
                     to={link.to}
                     end={link.to === '/'}
                     className={({ isActive }) =>
-                      'font-display font-bold text-nav leading-[1.4] tracking-[1.6px] text-black ' +
+                      'font-display text-nav leading-[1.4] tracking-[1.6px] text-black ' +
                       'underline-offset-[6px] transition-opacity duration-200 hover:opacity-1000 ' +
                       (isActive ? 'underline' : 'no-underline')
                     }
@@ -91,13 +91,13 @@ export default function Navbar({ overlay = false }) {
               onClick={() => setMenuOpen(true)}
               aria-label="Menu"
               aria-expanded={menuOpen}
-              className="flex items-center gap-2 font-display text-[13px] uppercase tracking-[0.14em] text-black md:hidden"
+              className="flex items-center text-black md:hidden"
             >
-              Menu
-              <span aria-hidden="true" className="flex h-[14px] w-[22px] flex-col justify-between">
-                <span className="block h-px w-full bg-ink" />
-                <span className="block h-px w-full bg-ink" />
-                <span className="block h-px w-full bg-ink" />
+              {/* Icon only — the source has no "MENU" label beside it. */}
+              <span aria-hidden="true" className="flex h-[16px] w-[26px] flex-col justify-between">
+                <span className="block h-[2px] w-full bg-ink" />
+                <span className="block h-[2px] w-full bg-ink" />
+                <span className="block h-[2px] w-full bg-ink" />
               </span>
             </button>
           </div>

@@ -26,7 +26,7 @@ export default function StoriesCarousel({ items }) {
         {items.map((item) => (
           <li
             key={item.name}
-            className="group relative w-[85%] shrink-0 snap-start overflow-hidden sm:w-[48%] md:w-[calc((107%-10vw)/3)]"
+            className="group relative w-[46%] shrink-0 snap-start overflow-hidden sm:w-[48%] md:w-[calc((107%-10vw)/3)]"
           >
             <img
               src={item.image}
@@ -50,7 +50,7 @@ export default function StoriesCarousel({ items }) {
         type="button"
         onClick={() => scrollByCard(-1)}
         aria-label="Previous stories"
-        className="absolute left-[-3vw] top-1/2 z-10 flex h-[2.8vw] min-h-[38px] w-[2.8vw] min-w-[38px] -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow-md transition-all duration-200 hover:scale-105 hover:bg-white"
+        className="absolute left-[1%] top-1/2 z-10 flex h-[2.8vw] min-h-[38px] w-[2.8vw] min-w-[38px] -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow-md transition-all duration-200 hover:scale-105 hover:bg-white md:left-[-3vw]"
       >
         <ArrowLeft size={20} strokeWidth={1.5} />
       </button>
@@ -58,7 +58,7 @@ export default function StoriesCarousel({ items }) {
         type="button"
         onClick={() => scrollByCard(1)}
         aria-label="Next stories"
-        className="absolute right-[-2.5vw] top-1/2 z-10 flex h-[2.8vw] min-h-[38px] w-[2.8vw] min-w-[38px] -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow-md transition-all duration-200 hover:scale-105 hover:bg-white"
+        className="absolute right-[1%] top-1/2 z-10 flex h-[2.8vw] min-h-[38px] w-[2.8vw] min-w-[38px] -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow-md transition-all duration-200 hover:scale-105 hover:bg-white md:right-[-2.5vw]"
       >
         <ArrowRight size={20} strokeWidth={1.5} />
       </button>

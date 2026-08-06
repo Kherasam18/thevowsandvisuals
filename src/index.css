@@ -7,6 +7,7 @@
 @import '@fontsource/playfair-display/600.css';
 @import '@fontsource/playfair-display/700.css';
 @import '@fontsource/gloock/400.css';
+@import '@fontsource/cormorant-garamond/300.css';
 
 /*
   FONTS — the site's Wix *theme* declares Gloock/Questrial, but almost every
@@ -25,6 +26,11 @@
   Gloock is genuine. Swap the @import + --font-* tokens if you license the
   originals.
 
+  Playfair Display has no Light weight (400 is its floor), so it renders heavier
+  than the original Butler *Light*. --font-display-light adds Cormorant Garamond
+  300 for display copy that needs that lighter texture — currently the Our
+  Mission headline.
+
   SCALING — Wix scales type and spacing proportionally to viewport width
   against a 1600px cap:
       --scaling-factor: clamp(0px, 100vw, 1600px)
@@ -37,6 +43,7 @@
 
 @theme {
   --font-display: 'Playfair Display', 'Butler', Georgia, serif;
+  --font-display-light: 'Cormorant Garamond', 'Butler', Georgia, serif;
   --font-serif: 'EB Garamond', 'Adobe Garamond Pro', Garamond, Georgia, serif;
   --font-gloock: 'Gloock', Georgia, serif;
   --font-stories: 'Edu VIC WA NT Hand';
@@ -91,6 +98,47 @@
   /* footer "Follow Along"      */
   --text-f14: 14px;
   /* footer legal row           */
+}
+
+/*
+  MOBILE TYPE SCALE — phones only (<768px), desktop untouched.
+
+  The fluid sizes above are all `N * --sf / 1600` with `--sf: min(100vw, 1600px)`,
+  so at a ~393px phone width every one collapses to roughly a quarter of its
+  desktop size — body copy lands at 4-6px. The source site is Wix, which ships a
+  *separate* mobile type set rather than scaling the desktop one down, so these
+  are fixed px values traced from the mobile recording rather than a formula.
+
+  Utilities compile to `font-size: var(--text-*)`, so redefining the custom
+  properties here re-sizes every token-based usage in one place. Arbitrary
+  `text-[calc(N*var(--sf)/1600)]` sizes in JSX are NOT covered — those carry
+  their own `md:` responsive pair.
+*/
+@media (max-width: 767px) {
+  :root {
+    --text-praise: 29px;
+    /* "PRAISE"                   */
+    --text-hero: 25px;
+    /* "CINEMATIC"                */
+    --text-h1: 26px;
+    /* mission headline           */
+    --text-h2: 30px;
+    --text-stories: 20px;
+    --text-name: 17px;
+    --text-lead: 13px;
+    --text-body: 14px;
+    --text-copy: 15px;
+    --text-eyebrow: 12px;
+    /* "OUR MISSION" + mission copy */
+
+    /* Footer fixed sizes — the desktop values are far too large on a phone. */
+    --text-f21: 19px;
+    /* "Visual Perfection"        */
+    --text-f35: 23px;
+    /* "Follow Along"             */
+    --text-f14: 10px;
+    /* legal row                  */
+  }
 }
 
 @layer base {

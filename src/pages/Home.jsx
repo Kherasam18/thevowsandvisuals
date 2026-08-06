@@ -48,9 +48,24 @@ const STORIES = [
   sitting beneath them.
 */
 const PILLARS = [
-  { image: vibrant, label: 'VIBRANT', offset: 'md:mt-[9vw]', text: 'text-[calc(59*var(--sf)/1600)]' },
-  { image: timeless, label: 'TIMELESS', offset: 'md:mt-0', text: 'text-[calc(118*var(--sf)/1600)]' },
-  { image: authentic, label: 'AUTHENTIC', offset: 'md:mt-[11vw]', text: 'text-[calc(59*var(--sf)/1600)]' },
+  {
+    image: vibrant,
+    label: 'VIBRANT',
+    offset: 'mt-[7vw] md:mt-[9vw]',
+    text: 'text-[11px] sm:text-[calc(59*var(--sf)/1600)]',
+  },
+  {
+    image: timeless,
+    label: 'TIMELESS',
+    offset: 'mt-0 md:mt-0',
+    text: 'text-[20px] sm:text-[calc(118*var(--sf)/1600)]',
+  },
+  {
+    image: authentic,
+    label: 'AUTHENTIC',
+    offset: 'mt-[9vw] md:mt-[11vw]',
+    text: 'text-[11px] sm:text-[calc(59*var(--sf)/1600)]',
+  },
 ];
 
 /*
@@ -107,7 +122,7 @@ export default function Home() {
           Our Mission
         </h2>
 
-        <h3 className="mx-auto mt-[1.6vw] max-w-[24ch] font-display text-h1 leading-[1.2] text-ink">
+        <h3 className="mx-auto mt-[1.6vw] max-w-[24ch] font-display-light text-h1 font-light leading-[1.2] text-ink">
           Where Every Frame
           <br />
           Tells a Love Story That
@@ -122,7 +137,7 @@ export default function Home() {
           className="mx-auto mt-[1.8vw] h-[3.4vw] min-h-[34px] w-auto"
         />
 
-        <p className="mx-auto mt-[1.8vw] max-w-[62ch] font-serif text-eyebrow leading-[1.5] tracking-[0.08em] text-ink">
+        <p className="mx-auto mt-[2vw] max-w-[70ch] font-serif text-eyebrow leading-[1.5] tracking-[0.08em] text-ink">
           Through our lenses, we step beyond these limitations, honing in on the emotions that define
           your story.
           <br />
@@ -133,7 +148,8 @@ export default function Home() {
 
       {/* ---------- Photo grid (5 across) ---------- */}
       <section className="w-full bg-cream">
-        <ul className="grid grid-cols-2 gap-[6px] sm:grid-cols-3 md:grid-cols-5">
+        {/* Source shows 3 across on a phone, not 2. */}
+        <ul className="grid grid-cols-3 gap-[6px] md:grid-cols-5">
           {GRID.map((src, i) => (
             <li key={src} className="overflow-hidden">
               <img
@@ -149,7 +165,8 @@ export default function Home() {
 
       {/* ---------- Vibrant / Timeless / Authentic ---------- */}
       <section className="w-full bg-cream px-[2.5vw] py-[10vw]">
-        <ul className="grid grid-cols-1 items-start gap-[1.6vw] sm:grid-cols-[1fr_1.4fr_1fr]">
+        {/* All three sit side by side at every width, as in the source. */}
+        <ul className="grid grid-cols-[1fr_1.4fr_1fr] items-start gap-[1.6vw]">
           {PILLARS.map((pillar) => (
             <li key={pillar.label} className={`pillar-desat relative ${pillar.offset}`}>
               <img
@@ -169,25 +186,38 @@ export default function Home() {
       </section>
 
       {/* ---------- The Stories ---------- */}
-      <section className="w-full bg-band px-[9vw] py-[5.5vw]">
-        <div className="mb-[1.8vw] flex items-baseline gap-[1.8vw] px-[2vw]">
-          <h2 className="shrink-0 font-display text-[calc(50*var(--sf)/1600)] leading-[1.2] text-black">
+      {/*
+        Mobile reflows this section: heading, then the "Dreams painted…" line,
+        then the carousel, then a centred button — and the hairline + tagline
+        drop out entirely. `contents` at phone widths hoists the bottom row's
+        two children up so the section's flex `order` can interleave them with
+        the carousel; at md the row re-forms and every order resets.
+      */}
+      <section className="flex w-full flex-col bg-band px-[9vw] py-[9vw] md:py-[5.5vw]">
+        <div className="order-1 flex items-baseline gap-[1.8vw] md:order-none md:mb-[1.8vw] md:px-[2vw]">
+          <h2 className="shrink-0 font-display text-[30px] leading-[1.2] text-black md:text-[calc(50*var(--sf)/1600)]">
             <em className="italic">The</em> STORIES
           </h2>
-          <span aria-hidden="true" className="h-px flex-1 bg-ink/55" />
-          <p className="shrink-0 font-serif text-[calc(26*var(--sf)/1600)] capitalize leading-[1.4] text-black">
+          <span aria-hidden="true" className="hidden h-px flex-1 bg-ink/55 md:block" />
+          <p className="hidden shrink-0 font-serif capitalize leading-[1.4] text-black md:block md:text-[calc(26*var(--sf)/1600)]">
             Where Every Frame Tells Infinite Stories
           </p>
         </div>
 
-        <StoriesCarousel items={STORIES} />
+        <div className="order-3 md:order-none">
+          <StoriesCarousel items={STORIES} />
+        </div>
 
-        <div className="mt-[2.6vw] flex flex-col items-start justify-between gap-[2vw] px-[2vw] md:flex-row md:items-end">
-          <p className="max-w-[46ch] font-serif text-[calc(19*var(--sf)/1600)] capitalize leading-[1.6] text-black">
+        <div className="contents md:mt-[2.6vw] md:flex md:flex-row md:items-end md:justify-between md:gap-[2vw] md:px-[2vw]">
+          <p className="order-2 mb-[6vw] mt-[3vw] font-serif text-[13px] capitalize leading-[1.6] text-black md:order-none md:mb-0 md:mt-0 md:max-w-[46ch] md:text-[calc(19*var(--sf)/1600)]">
             Dreams painted in the sky, hopes reflected in the stars. We frame them, making wishes last
             forever.
           </p>
-          <Button to="/stories" aria-label="Explore All">
+          <Button
+            to="/stories"
+            aria-label="Explore All"
+            className="order-4 mt-[7vw] self-center md:order-none md:mt-0 md:self-auto"
+          >
             Explore All
           </Button>
         </div>

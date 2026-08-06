@@ -28,18 +28,18 @@ export default function TestimonialCarousel({ items }) {
         />
       </div>
 
-      <h3 className="mt-[2vw] font-serif text-[calc(22*var(--sf)/1600)] uppercase tracking-[0.16em] text-ink">
+      <h3 className="mt-[5vw] font-serif text-[17px] uppercase tracking-[0.16em] text-ink md:mt-[2vw] md:text-[calc(22*var(--sf)/1600)]">
         {active.name}
       </h3>
 
       <p
         aria-live="polite"
-        className="mt-[1.2vw] max-w-[56ch] text-center font-serif text-[calc(18.5*var(--sf)/1600)] leading-[1.75] text-ink"
+        className="mt-[3vw] max-w-[56ch] text-center font-serif text-[12.5px] leading-[1.75] text-ink md:mt-[1.2vw] md:text-[calc(18.5*var(--sf)/1600)]"
       >
         {active.quote}
       </p>
 
-      <div className="mt-[2vw] flex items-center gap-[2.5vw]">
+      <div className="mt-[6vw] flex items-center gap-[9vw] md:mt-[2vw] md:gap-[2.5vw]">
         <button
           type="button"
           onClick={prev}

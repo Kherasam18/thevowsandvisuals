@@ -199,9 +199,14 @@ export default function Home() {
         two children up so the section's flex `order` can interleave them with
         the carousel; at md the row re-forms and every order resets.
       */}
-      <section className="flex w-full flex-col bg-band px-[9vw] py-[9vw] md:py-[5.5vw]">
-        <div className="order-1 flex items-baseline gap-[1.8vw] md:order-none md:mb-[1.8vw] md:px-[2vw]">
-          <h2 className="shrink-0 font-display text-[30px] leading-[1.2] text-black md:text-[calc(50*var(--sf)/1600)]">
+      {/* Mobile: the carousel runs closer to the edge than the copy, so the
+          section padding is shallow and the text blocks carry their own inset. */}
+      <section className="flex w-full flex-col bg-band px-[3.5vw] py-[9vw] md:px-[9vw] md:py-[5.5vw]">
+        <div className="order-1 flex items-baseline gap-[1.8vw] px-[2.8vw] md:order-none md:mb-[1.8vw] md:px-[2vw]">
+          {/* Mobile borrows the mission headline's lighter display face: the
+              source sets both in one high-contrast light serif, where Playfair
+              at 400 reads heavier and wider. Desktop keeps its current face. */}
+          <h2 className="shrink-0 font-display-light text-[37px] font-light leading-[1.2] text-black md:font-display md:text-[calc(50*var(--sf)/1600)] md:font-normal">
             <em className="italic">The</em> STORIES
           </h2>
           <span aria-hidden="true" className="hidden h-px flex-1 bg-ink/55 md:block" />
@@ -215,14 +220,14 @@ export default function Home() {
         </div>
 
         <div className="contents md:mt-[2.6vw] md:flex md:flex-row md:items-end md:justify-between md:gap-[2vw] md:px-[2vw]">
-          <p className="order-2 mb-[6vw] mt-[3vw] font-serif text-[13px] capitalize leading-[1.6] text-black md:order-none md:mb-0 md:mt-0 md:max-w-[46ch] md:text-[calc(19*var(--sf)/1600)]">
+          <p className="order-2 mb-[7.5vw] mt-[7.5vw] px-[2.8vw] font-serif text-[15px] capitalize leading-[1.6] tracking-[0.1em] text-black md:order-none md:mb-0 md:mt-0 md:max-w-[46ch] md:px-0 md:tracking-normal md:text-[calc(19*var(--sf)/1600)]">
             Dreams painted in the sky, hopes reflected in the stars. We frame them, making wishes last
             forever.
           </p>
           <Button
             to="/stories"
             aria-label="Explore All"
-            className="order-4 mt-[7vw] self-center md:order-none md:mt-0 md:self-auto"
+            className="order-4 mt-[10vw] self-center tracking-[0.1em] md:order-none md:mt-0 md:self-auto md:tracking-normal"
           >
             Explore All
           </Button>

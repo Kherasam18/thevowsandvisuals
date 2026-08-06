@@ -120,7 +120,7 @@
     /* "PRAISE"                   */
     --text-hero: 25px;
     /* "CINEMATIC"                */
-    --text-h1: 26px;
+    --text-h1: 29px;
     /* mission headline           */
     --text-h2: 30px;
     --text-stories: 20px;
@@ -128,7 +128,7 @@
     --text-lead: 13px;
     --text-body: 14px;
     --text-copy: 15px;
-    --text-eyebrow: 12px;
+    --text-eyebrow: 15px;
     /* "OUR MISSION" + mission copy */
 
     /* Footer fixed sizes — the desktop values are far too large on a phone. */

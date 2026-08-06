@@ -117,12 +117,17 @@ export default function Home() {
       </section>
 
       {/* ---------- Our Mission ---------- */}
-      <section className="w-full bg-cream px-[6vw] py-[5vw] text-center">
+      {/*
+        Mobile paddings and gaps are traced off the source screenshot: it sets
+        the copy in a narrower column (~9vw side padding), spaces the block far
+        more generously, and leaves a deep run-out before the photo grid.
+      */}
+      <section className="w-full bg-cream px-[9vw] pb-[25vw] pt-[10vw] text-center md:px-[6vw] md:py-[5vw]">
         <h2 className="font-serif text-eyebrow uppercase leading-[1.4] tracking-[0.04em] text-black">
           Our Mission
         </h2>
 
-        <h3 className="mx-auto mt-[1.6vw] max-w-[24ch] font-display-light text-h1 font-light leading-[1.2] text-ink">
+        <h3 className="mx-auto mt-[4vw] max-w-[24ch] font-display-light text-h1 font-light leading-[1.2] text-ink md:mt-[1.6vw]">
           Where Every Frame
           <br />
           Tells a Love Story That
@@ -134,10 +139,11 @@ export default function Home() {
           src={markScript}
           alt=""
           aria-hidden="true"
-          className="mx-auto mt-[1.8vw] h-[3.4vw] min-h-[34px] w-auto"
+          className="mx-auto mt-[7vw] h-[66px] w-auto md:mt-[1.8vw] md:h-[3.4vw] md:min-h-[34px]"
         />
 
-        <p className="mx-auto mt-[2vw] max-w-[70ch] font-serif text-eyebrow leading-[1.5] tracking-[0.08em] text-ink">
+        {/* A touch larger than the eyebrow token, which the source sizes separately. */}
+        <p className="mx-auto mt-[5.5vw] max-w-[70ch] font-serif text-[16px] leading-[1.5] tracking-[0.08em] text-ink md:mt-[2vw] md:text-eyebrow">
           Through our lenses, we step beyond these limitations, honing in on the emotions that define
           your story.
           <br />
@@ -149,7 +155,7 @@ export default function Home() {
       {/* ---------- Photo grid (5 across) ---------- */}
       <section className="w-full bg-cream">
         {/* Source shows 3 across on a phone, not 2. */}
-        <ul className="grid grid-cols-3 gap-[6px] md:grid-cols-5">
+        <ul className="grid grid-cols-3 gap-[4px] md:grid-cols-5">
           {GRID.map((src, i) => (
             <li key={src} className="overflow-hidden">
               <img

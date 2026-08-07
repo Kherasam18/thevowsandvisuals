@@ -117,7 +117,7 @@
 */
 @media (max-width: 767px) {
   :root {
-    --text-praise: 29px;
+    --text-praise: 41px;
     /* "PRAISE"                   */
     --text-hero: 25px;
     /* "CINEMATIC"                */
@@ -156,12 +156,16 @@
 
   /*
     The "Cinematic Journeys" video band has angled top and bottom edges in the
-    source ([data-testid="top-divider"] / "bottom-divider"). Home.mp4 shows
-    these are shallow *chevrons* with off-centre apexes, not straight
-    diagonals — traced from the recording at 1920x1080.
+    source ([data-testid="top-divider"] / "bottom-divider") — shallow *chevrons*
+    with off-centre apexes, not straight diagonals.
+
+    Edge-detected column by column off a 1920x1080 capture of the source. Both
+    chevrons point *inward*: the top dips to 13.4% at x=72.5%, and the bottom
+    cuts up to 86% at x=22.5% — the earlier trace had that lower apex pointing
+    down instead, which flipped the wedge under the left of the band.
   */
   .clip-angled {
-    clip-path: polygon(0 1%, 73% 9%, 100% 5%, 100% 95%, 24% 100%, 0 88%);
+    clip-path: polygon(0 0, 72.5% 13.4%, 100% 0, 100% 100%, 22.5% 86%, 0 98.5%);
   }
 
   .hide-scrollbar {

@@ -1,62 +1,177 @@
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
+
+const AUTOPLAY_MS = 6000;
 
 /**
- * "Client PRAISE" slider. One testimonial at a time — paired portraits, the
- * couple's name, the quote, then arrows centred beneath.
+ * "Client PRAISE" slider — paired portraits, the couple's name, then the quote,
+ * with arrows centred beneath.
+ *
+ * Uses the same mechanism as StoriesCarousel so both sections slide alike: a
+ * snap-scrolling track rather than a swap, with the list rendered twice so the
+ * run wraps endlessly. Once the scroll passes the end of the first copy we
+ * subtract exactly one copy's width with no animation, and because copy two is
+ * identical the seam is invisible. Autoplay yields to reduced-motion
+ * preferences, pauses under the pointer, and only runs while on screen.
  */
 export default function TestimonialCarousel({ items }) {
-  const [index, setIndex] = useState(0);
-  const active = items[index];
+  const trackRef = useRef(null);
+  const loop = [...items, ...items];
 
-  const prev = () => setIndex((i) => (i - 1 + items.length) % items.length);
-  const next = () => setIndex((i) => (i + 1) % items.length);
+  const stepWidth = () => {
+    const track = trackRef.current;
+    const slide = track?.firstElementChild;
+    if (!track || !slide) return 0;
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    return slide.getBoundingClientRect().width + gap;
+  };
+
+  /** Distance from the first slide to its duplicate — one full cycle. */
+  const copyWidth = () => {
+    const track = trackRef.current;
+    const twin = track?.children[items.length];
+    if (!track || !twin) return 0;
+    return twin.offsetLeft - track.children[0].offsetLeft;
+  };
+
+  /* The track scrolls smoothly by default, which would animate plain scrollLeft
+     assignments too — the wrap has to opt out or it reads as a rewind. */
+  const jumpTo = (left) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const previous = track.style.scrollBehavior;
+    track.style.scrollBehavior = 'auto';
+    track.scrollLeft = left;
+    track.style.scrollBehavior = previous;
+  };
+
+  const scrollBySlide = (direction) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const copy = copyWidth();
+    if (direction < 0 && copy && track.scrollLeft < stepWidth()) jumpTo(track.scrollLeft + copy);
+    track.scrollBy({ left: direction * stepWidth(), behavior: 'smooth' });
+  };
+
+  // Rewind by one copy once scrolling settles, keeping scrollLeft in range.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    let settle = 0;
+    const onScroll = () => {
+      clearTimeout(settle);
+      settle = setTimeout(() => {
+        const copy = copyWidth();
+        if (copy && track.scrollLeft >= copy) jumpTo(track.scrollLeft - copy);
+      }, 140);
+    };
+
+    track.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      track.removeEventListener('scroll', onScroll);
+      clearTimeout(settle);
+    };
+  }, [items.length]);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const track = trackRef.current;
+    if (!track) return;
+
+    let timer = 0;
+    let hovered = false;
+    const start = () => {
+      if (timer) return;
+      timer = setInterval(() => {
+        if (!hovered) scrollBySlide(1);
+      }, AUTOPLAY_MS);
+    };
+    const stop = () => {
+      clearInterval(timer);
+      timer = 0;
+    };
+
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), {
+      threshold: 0,
+    });
+    io.observe(track);
+
+    const pause = () => {
+      hovered = true;
+    };
+    const resume = () => {
+      hovered = false;
+    };
+    track.addEventListener('pointerenter', pause);
+    track.addEventListener('pointerleave', resume);
+
+    return () => {
+      io.disconnect();
+      stop();
+      track.removeEventListener('pointerenter', pause);
+      track.removeEventListener('pointerleave', resume);
+    };
+  }, [items.length]);
 
   return (
     <div className="flex flex-col items-center">
-      <div key={active.name} className="flex w-full max-w-[36rem] justify-center gap-4 md:gap-[1.2vw]">
-        <img
-          src={active.images[0]}
-          alt=""
-          aria-hidden="true"
-          className="aspect-[3/4] w-1/2 object-cover"
-        />
-        <img
-          src={active.images[1]}
-          alt=""
-          aria-hidden="true"
-          className="aspect-[3/4] w-1/2 object-cover"
-        />
-      </div>
-
-      <h3 className="mt-[5vw] font-serif text-[17px] uppercase tracking-[0.16em] text-ink md:mt-[2vw] md:text-[calc(22*var(--sf)/1600)]">
-        {active.name}
-      </h3>
-
-      <p
-        aria-live="polite"
-        className="mt-[3vw] max-w-[56ch] text-center font-serif text-[12.5px] leading-[1.75] text-ink md:mt-[1.2vw] md:text-[calc(18.5*var(--sf)/1600)]"
+      <ul
+        ref={trackRef}
+        className="hide-scrollbar flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth"
       >
-        {active.quote}
-      </p>
+        {loop.map((item, i) => (
+          <li
+            key={`${item.name}-${i}`}
+            aria-hidden={i >= items.length ? 'true' : undefined}
+            className="flex w-full shrink-0 snap-start flex-col items-center"
+          >
+            <div className="flex w-full max-w-[36rem] justify-center gap-[19px] md:gap-[1.2vw]">
+              <img
+                src={item.images[0]}
+                alt=""
+                aria-hidden="true"
+                /* w-1/2 + gap overflows the row; subtract the gap so the pair fits. */
+                className="aspect-[3/4] w-[calc((100%-19px)/2)] object-cover md:w-1/2"
+              />
+              <img
+                src={item.images[1]}
+                alt=""
+                aria-hidden="true"
+                className="aspect-[3/4] w-[calc((100%-19px)/2)] object-cover md:w-1/2"
+              />
+            </div>
 
-      <div className="mt-[6vw] flex items-center gap-[9vw] md:mt-[2vw] md:gap-[2.5vw]">
+            <h3 className="mt-[7vw] font-display-light text-[29px] font-light uppercase tracking-[0.02em] text-ink md:mt-[2vw] md:font-serif md:text-[calc(22*var(--sf)/1600)] md:font-normal md:tracking-[0.16em]">
+              {item.name}
+            </h3>
+
+            <p className="mt-[3vw] w-full max-w-[56ch] text-left font-serif text-[14.5px] leading-[1.75] text-ink md:mt-[1.2vw] md:text-center md:text-[calc(18.5*var(--sf)/1600)]">
+              {item.quote}
+            </p>
+          </li>
+        ))}
+      </ul>
+
+      {/* The track is now one uniform height (tallest quote), so shorter
+          testimonials carry their own slack above the arrows. */}
+      <div className="mt-[9vw] flex items-center gap-[11vw] md:mt-[2vw] md:gap-[2.5vw]">
         <button
           type="button"
-          onClick={prev}
+          onClick={() => scrollBySlide(-1)}
           aria-label="Previous testimonial"
           className="text-ink transition-opacity duration-200 hover:opacity-55"
         >
-          <svg width="40" height="14" viewBox="0 0 40 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 40 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[17px] w-[48px] md:h-[14px] md:w-[40px]">
             <path d="M40 7H1M1 7L7 1M1 7L7 13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
         <button
           type="button"
-          onClick={next}
+          onClick={() => scrollBySlide(1)}
           aria-label="Next testimonial"
           className="text-ink transition-opacity duration-200 hover:opacity-55"
         >
-          <svg width="40" height="14" viewBox="0 0 40 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 40 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[17px] w-[48px] md:h-[14px] md:w-[40px]">
             <path d="M0 7H39M39 7L33 1M39 7L33 13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>

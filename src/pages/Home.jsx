@@ -246,8 +246,8 @@ export default function Home() {
         src="/video/hero.mp4"
         poster={heroPoster}
         label="Khalyani & Aseem"
-        parallax
-        className="clip-angled h-[38vw] min-h-[260px] w-full"
+        fixedBackdrop
+        className="clip-angled h-[47vw] min-h-[260px] w-full"
       >
         <p className="absolute bottom-[4.6vw] right-[4vw] font-serif text-lead capitalize leading-[1.4] text-white">
           Capturing Dreams, Freezing Moments
@@ -272,12 +272,17 @@ export default function Home() {
       </section>
 
       {/* ---------- Client Praise ---------- */}
-      <section className="w-full bg-band px-[6vw] pb-[5vw] pt-[3vw]">
-        <h2 className="relative z-10 text-center font-display text-praise leading-[1.1] text-ink">
-          <span className="italic font-serif">Client</span> PRAISE
+      {/*
+        Desktop tucks the carousel up under the heading (-mt); the source does
+        the opposite on a phone, leaving a deep gap below it. Mobile also uses
+        the lighter display face and a wider side inset, matching the source.
+      */}
+      <section className="w-full bg-band px-[9.2vw] pb-[5vw] pt-[3vw] md:px-[6vw]">
+        <h2 className="relative z-10 text-center font-display-light text-praise font-light leading-[1.1] text-ink md:font-display md:font-normal">
+          <span className="italic md:font-serif">Client</span> PRAISE
         </h2>
 
-        <div className="relative z-20 -mt-[2vw]">
+        <div className="relative z-20 mt-[14vw] md:-mt-[2vw]">
           <TestimonialCarousel items={TESTIMONIALS} />
         </div>
       </section>

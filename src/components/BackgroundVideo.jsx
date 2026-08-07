@@ -16,7 +16,7 @@ export default function BackgroundVideo({
   label,
   className = '',
   children,
-  parallax = false,
+  fixedBackdrop = false,
 }) {
   const [hasVideo, setHasVideo] = useState(false);
   const containerRef = useRef(null);
@@ -40,40 +40,54 @@ export default function BackgroundVideo({
   }, [src]);
 
   /*
-    Parallax — as the band travels through the viewport, translate the video a
-    little slower than the page so its content drifts within the (angled) frame.
-    Opt-in via the `parallax` prop; the full-screen hero doesn't use it. The
-    video is rendered 140% tall (see JSX below) so there's vertical overflow to
-    move into without exposing an edge.
+    Fixed backdrop — the footage holds still in the viewport while the band's
+    angled window travels across it, so scrolling wipes the frame open rather
+    than dragging the picture along. Opt-in via `fixedBackdrop`; the full-screen
+    hero doesn't use it.
 
-    Driven by a rAF loop that runs *only while the band is in view* (gated by an
-    IntersectionObserver), reading the band's live position each frame. This is
-    deliberately not a `scroll` listener — a page can be scrolled in ways that
-    don't emit window scroll events, and reading position per-frame is robust to
-    all of them. Disabled for reduced-motion users and when no <video> is mounted
-    (poster-only fallback).
+    The video is sized to the viewport and shifted back by the band's own offset
+    (`-rect.top`), which parks its box at the top of the screen no matter where
+    the band has scrolled to — the same result as `position: fixed`, but driven
+    by a transform so it is unaffected by the containing-block and clipping rules
+    that make fixed descendants unreliable inside a clip-path.
+
+    A rAF loop reads the band's live position each frame while it is in view
+    (gated by an IntersectionObserver). This is deliberately not a `scroll`
+    listener — a page can be scrolled in ways that emit no scroll events, and
+    reading position per-frame is robust to all of them. The sizing is applied
+    here rather than in the JSX so that when this effect doesn't run (reduced
+    motion, or poster-only), the video keeps its ordinary full-cover layout.
   */
   useEffect(() => {
-    if (!parallax || !hasVideo) return;
+    if (!fixedBackdrop || !hasVideo) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const container = containerRef.current;
     const video = videoRef.current;
     if (!container || !video) return;
 
+    video.style.top = '0';
+    video.style.bottom = 'auto';
+    video.style.willChange = 'transform';
+
     let raf = 0;
     let visible = false;
-    let last = null;
+    let lastY = null;
+    let lastHeight = null;
 
     const apply = () => {
-      const rect = container.getBoundingClientRect();
+      // Measured rather than 100vh: mobile browsers resize the viewport as the
+      // URL bar hides, and vh units would reflow the video mid-scroll.
       const vh = window.innerHeight || document.documentElement.clientHeight;
-      const centerOffset = rect.top + rect.height / 2 - vh / 2;
-      const maxShift = rect.height * 0.18; // stay inside the 20% vertical overflow
-      const shift = Math.max(-maxShift, Math.min(maxShift, centerOffset * -0.12));
-      if (shift !== last) {
-        video.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0)`;
-        last = shift;
+      if (vh !== lastHeight) {
+        video.style.height = `${vh}px`;
+        lastHeight = vh;
+      }
+
+      const y = -container.getBoundingClientRect().top;
+      if (y !== lastY) {
+        video.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0)`;
+        lastY = y;
       }
     };
 
@@ -91,29 +105,34 @@ export default function BackgroundVideo({
     );
 
     io.observe(container);
-    apply(); // position correctly on mount, before the first frame runs
+    apply(); // park it correctly on mount, before the first frame runs
 
     return () => {
       io.disconnect();
       if (raf) cancelAnimationFrame(raf);
+      video.style.transform = '';
+      video.style.height = '';
+      video.style.top = '';
+      video.style.bottom = '';
+      video.style.willChange = '';
     };
-  }, [parallax, hasVideo]);
+  }, [fixedBackdrop, hasVideo]);
 
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden bg-cover bg-center bg-no-repeat ${className}`}
+      className={`relative overflow-hidden bg-cover bg-center bg-no-repeat ${
+        /* Pins the poster the same way, so the fallback matches before the
+           video mounts — background-attachment does natively for an image what
+           the effect above does for the <video>. */
+        fixedBackdrop ? 'bg-fixed' : ''
+      } ${className}`}
       style={{ backgroundImage: `url(${poster})` }}
     >
       {hasVideo && (
         <video
           ref={videoRef}
-          className={
-            parallax
-              ? 'absolute left-0 w-full object-cover'
-              : 'absolute inset-0 h-full w-full object-cover'
-          }
-          style={parallax ? { top: '-20%', height: '140%', willChange: 'transform' } : undefined}
+          className="absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
           loop

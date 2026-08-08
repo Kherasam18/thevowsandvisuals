@@ -115,25 +115,15 @@ export default function Footer() {
         </p>
 
         {/* Legal row */}
-        <div className="mt-[7vw] grid grid-cols-2 gap-x-[4vw] gap-y-[4vw] font-serif text-f14 leading-[1.4] tracking-[0.28px] md:mt-[2.4vw] md:grid-cols-3 md:gap-0">
-          <p className="text-center uppercase md:max-w-[17ch] md:text-left">
-            {/* Copyright © {new Date().getFullYear()} The Vows and Visuals */}
-          </p>
-          {/*
-            The source pairs the copyright with a T&C / Privacy link. Rendered as
-            plain text until those pages exist — a dead link is worse than none.
-          */}
-          <p className="text-center uppercase md:order-last md:max-w-[17ch] md:justify-self-end md:text-right">
-            {/* T&amp;C and Privacy Policy */}
-          </p>
-          <p className="col-span-2 text-center md:col-span-1">
+        <div className="mt-[7vw] grid grid-cols-2 gap-x-[4vw] gap-y-[4vw] font-serif text-f25 leading-[1.4] tracking-[0.28px] md:mt-[2.4vw] md:grid-cols-3 md:gap-0">
+          <p className="col-span-2 text-center md:col-span-3">
             <a
-              href="http://www.digitalmarketising.com/"
+              href="http://www.linkedin.com/in/sam-khera/"
               target="_blank"
               rel="noreferrer noopener"
               className="transition-opacity duration-200 hover:opacity-65"
             >
-              DESIGNED BY Sam Khera
+              Designed By - SAM KHERA
             </a>
           </p>
         </div>

@@ -235,8 +235,8 @@ export default function Home() {
       </section >
 
       {/* ---------- Cinematic Journeys ---------- */}
-      < section className="w-full bg-cream px-[6vw] pb-[2vw] pt-[3vw] text-center" >
-        <h2 className="font-display text-hero uppercase leading-[1.1] text-black">
+      < section className="w-full bg-cream px-[6vw] pb-[3vw] pt-[5vw] text-center" >
+        <h2 className="font-display text-hero uppercase leading-[1.3] text-black">
           Cinematic <span className="normal-case italic">Journeys</span>
         </h2>
       </section >
@@ -247,7 +247,7 @@ export default function Home() {
         poster={heroPoster}
         label="Khalyani & Aseem"
         fixedBackdrop
-        className="clip-angled h-[47vw] min-h-[260px] w-full"
+        className="clip-angled h-[57vw] min-h-[260px] w-full"
       >
         <p className="absolute bottom-[4.6vw] right-[4vw] font-serif text-lead capitalize leading-[1.4] text-white">
           Capturing Dreams, Freezing Moments
@@ -256,7 +256,7 @@ export default function Home() {
 
       {/* ---------- Four reels ---------- */}
       < section className="w-full bg-cream px-[6vw] py-[4vw]" >
-        <ul className="grid grid-cols-1 gap-[2vw] md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-[3vw] md:grid-cols-2">
           {REELS.map((reel) => (
             <li key={reel.id}>
               <YouTubeEmbed id={reel.id} title={reel.title} />

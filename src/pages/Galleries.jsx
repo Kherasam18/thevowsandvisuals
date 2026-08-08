@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Button from '../components/Button';
 import Lightbox from '../components/Lightbox';
+import MasonryGrid from '../components/MasonryGrid';
 import hero1 from '../assets/galleries/hero-01.jpg';
 import hero2 from '../assets/galleries/hero-02.jpg';
 import hero3 from '../assets/galleries/hero-03.jpg';
@@ -117,23 +118,28 @@ export default function Galleries() {
 
       {/* Masonry photo wall */}
       <section className="w-full bg-cream pb-[4vw] pt-[3vw]">
-        <div className="columns-2 gap-[10px] px-[10px] md:columns-4">
-          {GRID.map((src, i) => (
-            <button
-              key={src}
-              type="button"
-              onClick={() => setLightboxIndex(i)}
-              aria-label={`Open image ${i + 1} of ${GRID.length}`}
-              className="mb-[10px] block w-full overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-maroon"
-            >
-              <img
-                src={src}
-                alt=""
-                loading="lazy"
-                className="w-full transition-transform duration-[600ms] ease-out hover:scale-[1.04]"
-              />
-            </button>
-          ))}
+        <div className="px-[10px]">
+          <MasonryGrid
+            images={GRID}
+            renderItem={(src, i) => (
+              <button
+                key={src}
+                type="button"
+                onClick={() => setLightboxIndex(i)}
+                aria-label={`Open image ${i + 1} of ${GRID.length}`}
+                /* Inset outline: the cell clips overflow on hover, so an outset
+                   ring would be cut off. */
+                className="block w-full overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-maroon"
+              >
+                <img
+                  src={src}
+                  alt=""
+                  loading="lazy"
+                  className="w-full transition-transform duration-[600ms] ease-out hover:scale-[1.04]"
+                />
+              </button>
+            )}
+          />
         </div>
       </section>
 

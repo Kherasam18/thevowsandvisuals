@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-const AUTOPLAY_MS = 6000;
+const AUTOPLAY_MS = 5000;
 
 /**
  * "Client PRAISE" slider — paired portraits, the couple's name, then the quote,
@@ -162,7 +162,7 @@ export default function TestimonialCarousel({ items }) {
           className="text-ink transition-opacity duration-200 hover:opacity-55"
         >
           <svg viewBox="0 0 40 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[17px] w-[48px] md:h-[14px] md:w-[40px]">
-            <path d="M40 7H1M1 7L7 1M1 7L7 13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M40 7H1M1 7L7 1M1 7L7 13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
         <button
@@ -172,7 +172,7 @@ export default function TestimonialCarousel({ items }) {
           className="text-ink transition-opacity duration-200 hover:opacity-55"
         >
           <svg viewBox="0 0 40 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[17px] w-[48px] md:h-[14px] md:w-[40px]">
-            <path d="M0 7H39M39 7L33 1M39 7L33 13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M0 7H39M39 7L33 1M39 7L33 13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </div>

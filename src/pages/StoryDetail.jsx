@@ -1,29 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { getStoryBySlug } from '../data/stories';
 import YouTubeEmbed from '../components/YouTubeEmbed';
-
-/*
-  Editorial gallery rhythm — a full-width feature, then a pair, a trio, a pair,
-  repeating. Cells are object-cover so the mix of portrait/landscape placeholders
-  crops to a consistent shape per row type. Keyed by the row's actual length so a
-  short trailing row still lays out correctly.
-*/
-const PATTERN = [1, 2, 3, 2];
-const LAYOUT = {
-  1: { cols: 'grid-cols-1', aspect: 'aspect-[16/7]' },
-  2: { cols: 'grid-cols-2', aspect: 'aspect-[4/5]' },
-  3: { cols: 'grid-cols-3', aspect: 'aspect-square' },
-};
-
-function toRows(items) {
-  const rows = [];
-  for (let i = 0, p = 0; i < items.length; p += 1) {
-    const size = PATTERN[p % PATTERN.length];
-    rows.push(items.slice(i, i + size));
-    i += size;
-  }
-  return rows;
-}
+import Lightbox from '../components/Lightbox';
+import MasonryGrid from '../components/MasonryGrid';
 
 /** 3×3 grid glyph for the "all stories" link, matching the reference. */
 function GridIcon() {
@@ -36,13 +16,17 @@ function GridIcon() {
 
 export default function StoryDetail() {
   const { slug } = useParams();
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   const data = getStoryBySlug(slug);
+
+  // Prev/next keeps this component mounted, so a viewer left open — via the
+  // back button, say — would otherwise carry its index onto the next couple.
+  useEffect(() => setLightboxIndex(null), [slug]);
 
   // Unknown couple → back to the list, mirroring the site's fall-through behaviour.
   if (!data) return <Navigate to="/stories" replace />;
 
   const { story, prev, next } = data;
-  const rows = toRows(story.gallery);
 
   return (
     <>
@@ -59,24 +43,37 @@ export default function StoryDetail() {
         <YouTubeEmbed id={story.filmId} title={`${story.name} — Wedding Film`} />
       </section>
 
-      {/* Editorial photo gallery (generic placeholders for now) */}
+      {/*
+        Photo gallery (generic placeholders for now). Every photo keeps its own
+        proportions and is shown whole, where the earlier object-cover cells
+        cropped portraits and panoramas to fit a fixed row shape. Packed by the
+        same masonry as the Galleries wall, so the columns finish level instead
+        of leaving a blank panel beside the last few photos.
+      */}
       <section className="w-full bg-cream px-[6vw] pb-[3vw]">
-        <div className="flex flex-col gap-[1vw]">
-          {rows.map((row, r) => (
-            <ul key={r} className={`grid gap-[1vw] ${LAYOUT[row.length].cols}`}>
-              {row.map((src, c) => (
-                <li key={c} className="overflow-hidden">
-                  <img
-                    src={src}
-                    alt=""
-                    loading="lazy"
-                    className={`w-full object-cover transition-transform duration-[900ms] ease-out hover:scale-[1.05] ${LAYOUT[row.length].aspect}`}
-                  />
-                </li>
-              ))}
-            </ul>
-          ))}
-        </div>
+        <MasonryGrid
+          images={story.gallery}
+          gapClass="gap-[1vw]"
+          columns={[2, 3]}
+          renderItem={(src, i) => (
+            <button
+              key={`${src}-${i}`}
+              type="button"
+              onClick={() => setLightboxIndex(i)}
+              aria-label={`Open image ${i + 1} of ${story.gallery.length}`}
+              /* Inset outline: the cell clips overflow on hover, so an outset
+                 ring would be cut off. */
+              className="block w-full overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-maroon"
+            >
+              <img
+                src={src}
+                alt=""
+                loading="lazy"
+                className="w-full transition-transform duration-[900ms] ease-out hover:scale-[1.04]"
+              />
+            </button>
+          )}
+        />
       </section>
 
       {/* Previous · all stories · Next */}
@@ -103,6 +100,13 @@ export default function StoryDetail() {
           </Link>
         </div>
       </nav>
+
+      <Lightbox
+        images={story.gallery}
+        index={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onNavigate={setLightboxIndex}
+      />
     </>
   );
 }

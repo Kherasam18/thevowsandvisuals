@@ -168,6 +168,26 @@
     clip-path: polygon(0 0, 72.5% 13.4%, 100% 0, 100% 100%, 22.5% 86%, 0 98.5%);
   }
 
+  /*
+    Scrim behind the transparent hero navbar, so white nav content stays legible
+    over any footage — a night shot or a blown-out sky.
+
+    Held near full strength across the navbar band before fading out, rather
+    than fading from the very top: a linear fade is already weak where the links
+    actually sit. Over worst-case white footage ~50% black keeps white text near
+    4:1, and the drop-shadow on the content covers the rest. It fades to nothing
+    below, so it reads as cinematic vignetting rather than a bar.
+  */
+  .hero-scrim {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.55) 0%,
+      rgb(0 0 0 / 0.45) 45%,
+      rgb(0 0 0 / 0.18) 72%,
+      rgb(0 0 0 / 0) 100%
+    );
+  }
+
   .hide-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;

@@ -92,13 +92,13 @@ const TESTIMONIALS = [
     name: 'Prithvi & Raghavi',
     images: [prithviA, prithviB],
     quote:
-      'Infinite Memories team, thank you for the incredible work! The photos and videos are absolutely stunning and full of emotion.You captured every moment so beautifully, and we truly felt your passion and warmth throughout. We couldn’t have asked for a better team!',
+      'The Vows and Visuals team, thank you for the incredible work! The photos and videos are absolutely stunning and full of emotion.You captured every moment so beautifully, and we truly felt your passion and warmth throughout. We couldn’t have asked for a better team!',
   },
   {
     name: 'Poorvi & Jass',
     images: [poorviA, poorviB],
     quote:
-      'Infinite Memories team were incredible! They captured our wedding beautifully, worked tirelessly, and felt like family throughout. One of the best choices we made.They captured our wedding beautifully, even with limited time for portraits, and created magic through their photos and videos. The wedding film makes us relive the day every time we watch it.',
+      'The Vows and Visuals team were incredible! They captured our wedding beautifully, worked tirelessly, and felt like family throughout. One of the best choices we made.They captured our wedding beautifully, even with limited time for portraits, and created magic through their photos and videos. The wedding film makes us relive the day every time we watch it.',
   },
 ];
 
@@ -235,9 +235,11 @@ export default function Home() {
       </section >
 
       {/* ---------- Cinematic Journeys ---------- */}
-      < section className="w-full bg-cream px-[6vw] pb-[3vw] pt-[5vw] text-center" >
-        <h2 className="font-display text-hero uppercase leading-[1.3] text-black">
-          Cinematic <span className="normal-case italic">Journeys</span>
+      < section className="w-full bg-cream px-[6vw] pb-[9vw] pt-[5vw] text-center md:pb-[3vw]" >
+        {/* Mobile takes the lighter display face used by the other headings;
+            the source also sets "Journeys" upright there, not italic. */}
+        <h2 className="font-display-light text-hero font-light uppercase leading-[1.3] text-black md:font-display md:font-normal">
+          Cinematic <span className="normal-case md:italic">Journeys</span>
         </h2>
       </section >
 
@@ -247,7 +249,9 @@ export default function Home() {
         poster={heroPoster}
         label="Khalyani & Aseem"
         fixedBackdrop
-        className="clip-angled h-[57vw] min-h-[260px] w-full"
+        /* 57vw is far below the floor on a phone, so the mobile band is set by
+           its min-height — traced at ~435px against the source. */
+        className="clip-angled h-[57vw] min-h-[435px] w-full md:min-h-[260px]"
       >
         <p className="absolute bottom-[4.6vw] right-[4vw] font-serif text-lead capitalize leading-[1.4] text-white">
           Capturing Dreams, Freezing Moments
@@ -255,7 +259,7 @@ export default function Home() {
       </BackgroundVideo >
 
       {/* ---------- Four reels ---------- */}
-      < section className="w-full bg-cream px-[6vw] py-[4vw]" >
+      < section className="w-full bg-cream px-[6vw] pb-[4vw] pt-[21vw] md:py-[4vw]" >
         <ul className="grid grid-cols-1 gap-[3vw] md:grid-cols-2">
           {REELS.map((reel) => (
             <li key={reel.id}>

@@ -154,7 +154,11 @@ export default function Navbar({ overlay = false }) {
               src={wordmark}
               alt="The Vows and Visuals"
               className={
-                'h-[7.6vw] w-auto max-h-[96px] md:h-[6vw] transition-opacity duration-300 ease-out ' +
+                /* The source's phone logo is a compact, tall mark; ours is a
+                   wide lockup, so it is sized to carry the same visual weight
+                   rather than the same height — matching height outright would
+                   run it nearly half the screen wide. */
+                'h-[10vw] w-auto max-h-[96px] md:h-[6vw] transition-opacity duration-300 ease-out ' +
                 (lightContent ? 'opacity-0' : 'opacity-100')
               }
             />
@@ -227,7 +231,8 @@ export default function Navbar({ overlay = false }) {
               className="flex items-center md:hidden"
             >
               {/* Icon only — the source has no "MENU" label beside it. */}
-              <span aria-hidden="true" className="flex h-[16px] w-[26px] flex-col justify-between">
+              {/* Traced off the source: same width, a little taller. */}
+              <span aria-hidden="true" className="flex h-[20px] w-[26px] flex-col justify-between">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}

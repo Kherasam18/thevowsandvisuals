@@ -110,7 +110,7 @@ export default function Footer() {
             rel="noreferrer noopener"
             className="font-display text-nav uppercase leading-[1.2] tracking-[1.6px] text-white transition-opacity duration-200 hover:opacity-65"
           >
-            @The vows and Visuals
+            @The Vows and Visuals
           </a>
         </p>
 

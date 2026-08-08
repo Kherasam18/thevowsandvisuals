@@ -8,8 +8,10 @@ import { STORIES } from '../data/stories';
  */
 export default function Stories() {
   return (
-    <section className="w-full bg-cream pb-[6vw] pt-[2vw]">
-      <div className="mx-auto w-full max-w-[1600px] px-[13.5vw]">
+    <section className="w-full bg-cream pb-[6vw] pt-[9vw] md:pt-[2vw]">
+      {/* Phones pull the gutter in so the banners run wider, and drop the first
+          one further clear of the navbar; desktop keeps the source's proportions. */}
+      <div className="mx-auto w-full max-w-[1600px] px-[6vw] md:px-[13.5vw]">
         <ul className="flex flex-col gap-[4.4vw]">
           {STORIES.map((story) => (
             <li key={story.slug}>

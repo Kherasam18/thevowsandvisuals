@@ -1,6 +1,6 @@
-# Infinite Memories — React rebuild
+# The Vows and Visuals — React rebuild
 
-A standalone React + Tailwind rebuild of the Infinite Memories wedding
+A standalone React + Tailwind rebuild of the The Vows and Visuals wedding
 photography site (originally Wix Studio / Thunderbolt), reconstructed from
 saved "Webpage, Complete" captures plus screen recordings of the live site.
 

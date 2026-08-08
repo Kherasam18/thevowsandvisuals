@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react';
+import animateScrollTo from '../lib/animateScrollTo';
 
 const AUTOPLAY_MS = 5000;
+
+/** How long one testimonial takes to slide past. A full-width slide reads
+    better a touch slower than the narrower story cards. */
+const SLIDE_MS = 1400;
 
 /**
  * "Client PRAISE" slider — paired portraits, the couple's name, then the quote,
@@ -15,6 +20,7 @@ const AUTOPLAY_MS = 5000;
  */
 export default function TestimonialCarousel({ items }) {
   const trackRef = useRef(null);
+  const cancelSlide = useRef(null);
   const loop = [...items, ...items];
 
   const stepWidth = () => {
@@ -49,7 +55,13 @@ export default function TestimonialCarousel({ items }) {
     if (!track) return;
     const copy = copyWidth();
     if (direction < 0 && copy && track.scrollLeft < stepWidth()) jumpTo(track.scrollLeft + copy);
-    track.scrollBy({ left: direction * stepWidth(), behavior: 'smooth' });
+
+    cancelSlide.current?.(); // drop whatever is still mid-slide
+    cancelSlide.current = animateScrollTo(
+      track,
+      track.scrollLeft + direction * stepWidth(),
+      SLIDE_MS,
+    );
   };
 
   // Rewind by one copy once scrolling settles, keeping scrollLeft in range.
@@ -96,6 +108,11 @@ export default function TestimonialCarousel({ items }) {
     });
     io.observe(track);
 
+    // A finger on the track outranks the animation — let go of it immediately
+    // so a swipe is not fighting a slide already in flight.
+    const release = () => cancelSlide.current?.();
+    track.addEventListener('pointerdown', release);
+
     const pause = () => {
       hovered = true;
     };
@@ -108,6 +125,8 @@ export default function TestimonialCarousel({ items }) {
     return () => {
       io.disconnect();
       stop();
+      cancelSlide.current?.();
+      track.removeEventListener('pointerdown', release);
       track.removeEventListener('pointerenter', pause);
       track.removeEventListener('pointerleave', resume);
     };

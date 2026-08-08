@@ -1,7 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import animateScrollTo from '../lib/animateScrollTo';
 
 const AUTOPLAY_MS = 3500;
+
+/** How long one card takes to slide past. Native smooth scrolling is far
+    quicker than this and offers no way to stretch it out. */
+const SLIDE_MS = 1200;
 
 /**
  * Horizontal story slider — one card at a time on a phone (with the next
@@ -16,6 +21,7 @@ const AUTOPLAY_MS = 3500;
  */
 export default function StoriesCarousel({ items }) {
   const trackRef = useRef(null);
+  const cancelSlide = useRef(null);
   const loop = [...items, ...items];
 
   const stepWidth = () => {
@@ -55,7 +61,13 @@ export default function StoriesCarousel({ items }) {
     // Stepping back from the very start needs runway: hop forward one copy
     // first, so there is always something to scroll back into.
     if (direction < 0 && copy && track.scrollLeft < stepWidth()) jumpTo(track.scrollLeft + copy);
-    track.scrollBy({ left: direction * stepWidth(), behavior: 'smooth' });
+
+    cancelSlide.current?.(); // drop whatever is still mid-slide
+    cancelSlide.current = animateScrollTo(
+      track,
+      track.scrollLeft + direction * stepWidth(),
+      SLIDE_MS,
+    );
   };
 
   // Rewind by one copy once scrolling settles, keeping scrollLeft in range.
@@ -102,6 +114,11 @@ export default function StoriesCarousel({ items }) {
     });
     io.observe(track);
 
+    // A finger on the track outranks the animation — let go of it immediately
+    // so a swipe is not fighting a slide already in flight.
+    const release = () => cancelSlide.current?.();
+    track.addEventListener('pointerdown', release);
+
     const pause = () => {
       hovered = true;
     };
@@ -114,6 +131,8 @@ export default function StoriesCarousel({ items }) {
     return () => {
       io.disconnect();
       stop();
+      cancelSlide.current?.();
+      track.removeEventListener('pointerdown', release);
       track.removeEventListener('pointerenter', pause);
       track.removeEventListener('pointerleave', resume);
     };

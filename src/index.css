@@ -119,7 +119,7 @@
   :root {
     --text-praise: 41px;
     /* "PRAISE"                   */
-    --text-hero: 25px;
+    --text-hero: 35px;
     /* "CINEMATIC"                */
     --text-h1: 29px;
     /* mission headline           */
@@ -166,6 +166,18 @@
   */
   .clip-angled {
     clip-path: polygon(0 0, 72.5% 13.4%, 100% 0, 100% 100%, 22.5% 86%, 0 98.5%);
+  }
+
+  /*
+    The source ships a separate mobile divider, not just a rescaled one. Edge
+    detection off a phone capture puts both chevrons at the same vertex (~69%)
+    and takes the bottom corners right down to the edge, where the desktop shape
+    turns up much earlier at 22.5%.
+  */
+  @media (max-width: 767px) {
+    .clip-angled {
+      clip-path: polygon(0 0, 69% 12.2%, 100% 0, 100% 100%, 69% 91.6%, 0 100%);
+    }
   }
 
   /*

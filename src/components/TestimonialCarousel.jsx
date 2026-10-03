@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import animateScrollTo from '../lib/animateScrollTo';
-import SiteImage from '../content/SiteImage';
 
 const AUTOPLAY_MS = 5000;
 
@@ -146,17 +145,19 @@ export default function TestimonialCarousel({ items }) {
             className="flex w-full shrink-0 snap-start flex-col items-center"
           >
             <div className="flex w-full max-w-[36rem] justify-center gap-[19px] md:gap-[1.2vw]">
-              {item.media.map((media, slot) => (
-                <SiteImage
-                  key={media?.id ?? slot}
-                  media={media}
-                  alt=""
-                  aria-hidden="true"
-                  sizes="(max-width: 767px) 46vw, 18rem"
-                  /* w-1/2 + gap overflows the row; subtract the gap so the pair fits. */
-                  className="aspect-[3/4] w-[calc((100%-19px)/2)] object-cover md:w-1/2"
-                />
-              ))}
+              <img
+                src={item.images[0]}
+                alt=""
+                aria-hidden="true"
+                /* w-1/2 + gap overflows the row; subtract the gap so the pair fits. */
+                className="aspect-[3/4] w-[calc((100%-19px)/2)] object-cover md:w-1/2"
+              />
+              <img
+                src={item.images[1]}
+                alt=""
+                aria-hidden="true"
+                className="aspect-[3/4] w-[calc((100%-19px)/2)] object-cover md:w-1/2"
+              />
             </div>
 
             <h3 className="mt-[7vw] font-display-light text-[29px] font-light uppercase tracking-[0.02em] text-ink md:mt-[2vw] md:font-serif md:text-[calc(22*var(--sf)/1600)] md:font-normal md:tracking-[0.16em]">

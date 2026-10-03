@@ -4,10 +4,6 @@ node_modules/
 # Build output
 dist/
 
-# Local admin store: uploaded originals, generated variants and content JSON.
-# Stands in for the R2 bucket, so it is machine-local and never committed.
-.data/
-
 # Claude Code — personal/machine-specific overrides, not shared config
 .claude/settings.local.json
 

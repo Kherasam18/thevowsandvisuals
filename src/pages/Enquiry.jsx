@@ -1,7 +1,6 @@
 ﻿import { useState } from 'react';
 import { SOCIALS, CONTACT } from '../data/site';
-import SiteImage from '../content/SiteImage';
-import { useContent } from '../content/ContentProvider';
+import hero from '../assets/enquiry/hero.jpg';
 
 const COUNTRY_CODES = ['+91', '+971', '+66', '+62', '+44', '+1', '+61', '+65'];
 
@@ -66,8 +65,6 @@ export default function Enquiry() {
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null); // null | 'success'
-  const content = useContent();
-  const hero = content?.media[content.enquiry.heroId] ?? null;
 
   const set = (key) => (e) => {
     const value = e.target.value;
@@ -113,11 +110,9 @@ export default function Enquiry() {
     <>
       {/* Hero banner */}
       <section className="w-full">
-        <SiteImage
-          media={hero}
-          alt={hero?.alt || 'Couple photographed on a snow-covered mountain ridge'}
-          loading="eager"
-          sizes="100vw"
+        <img
+          src={hero}
+          alt="Couple photographed on a snow-covered mountain ridge"
           className="h-[26vw] min-h-[220px] w-full object-cover"
         />
       </section>

@@ -10,31 +10,26 @@ import { useEffect, useMemo, useRef, useState } from 'react';
  * drifts — on the Galleries wall it left one column ~700px short, i.e. a large
  * blank panel beside the last few photos.
  *
- * Picking the shortest column needs each image's aspect ratio up front. Pass
- * `ratios` when they are already known — the content model stores every image's
- * dimensions, so the wall can be laid out correctly on the very first paint and
- * the photos can stay lazy.
- *
- * Without them this falls back to probing: loading each image just to measure
- * it, which pulls the whole set eagerly. Until the probes resolve, photos are
- * dealt round-robin, which matches on count.
+ * Picking the shortest column needs each image's aspect ratio up front, which
+ * the browser only knows once the file has loaded, so the ratios are probed
+ * first. The probes request the same URLs the <img> tags use, so they warm the
+ * cache rather than doubling traffic — but they do pull the whole set eagerly
+ * instead of on scroll. Until they resolve, photos are dealt round-robin, which
+ * matches on count and is what the old column layout approximated anyway.
  */
 export default function MasonryGrid({
   images,
   renderItem,
-  ratios: knownRatios,
   gapClass = 'gap-[10px]',
   columns = [2, 4],
   breakpoint = 768,
 }) {
   const [narrowColumns, wideColumns] = columns;
   const containerRef = useRef(null);
-  const [probedRatios, setProbedRatios] = useState(null);
+  const [ratios, setRatios] = useState(null);
   const [columnCount, setColumnCount] = useState(narrowColumns);
-  const ratios = knownRatios ?? probedRatios;
 
   useEffect(() => {
-    if (knownRatios) return undefined;
     let cancelled = false;
 
     Promise.all(
@@ -48,13 +43,13 @@ export default function MasonryGrid({
           }),
       ),
     ).then((measured) => {
-      if (!cancelled) setProbedRatios(measured);
+      if (!cancelled) setRatios(measured);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [images, knownRatios]);
+  }, [images]);
 
   /*
     Measured off the container rather than a matchMedia listener: the grid sits

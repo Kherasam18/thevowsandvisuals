@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
 import { FOOTER_LINKS, INSTAGRAM_URL } from '../data/site';
-import SiteImage from '../content/SiteImage';
-import { useContent } from '../content/ContentProvider';
 import brandMark from '../assets/brand/logo-monogram.png';
+import f1 from '../assets/footer/footer-01.jpg';
+import f2 from '../assets/footer/footer-02.jpg';
+import f3 from '../assets/footer/footer-03.jpg';
+import f4 from '../assets/footer/footer-04.jpg';
+
+const THUMBS = [f1, f2, f3, f4];
 
 /*
   Type size lives on the <ul> so the em-based row gap tracks the label size.
@@ -27,9 +31,6 @@ function LinkColumn({ links }) {
 }
 
 export default function Footer() {
-  const content = useContent();
-  const thumbs = content ? content.footer.thumbIds.map((id) => content.media[id]).filter(Boolean) : [];
-
   return (
     <footer className="w-full bg-black text-white">
       <div className="mx-auto w-full max-w-[1600px] px-[6vw] pb-[9vw] pt-[10vw] md:px-[3vw] md:pb-[2.2vw] md:pt-[3.4vw]">
@@ -73,9 +74,9 @@ export default function Footer() {
           {/* 62.8% of the viewport in the source; scaled up here to cancel the
               container's 3vw side padding so the strip lands at the same width. */}
           <div className="mx-auto flex w-full max-w-[1005px] md:w-[66.8%]">
-            {thumbs.map((media, i) => (
+            {THUMBS.map((src, i) => (
               <a
-                key={media.id}
+                key={src}
                 href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noreferrer noopener"
@@ -83,11 +84,10 @@ export default function Footer() {
                 /* Source shows three wider frames on a phone; the fourth drops out. */
                 className={`group block w-1/3 overflow-hidden md:w-1/4 ${i === 3 ? 'hidden md:block' : ''}`}
               >
-                <SiteImage
-                  media={media}
+                <img
+                  src={src}
                   alt=""
                   aria-hidden="true"
-                  sizes="(max-width: 767px) 33vw, 17vw"
                   className="aspect-[4/3] w-full object-cover transition-opacity duration-300 group-hover:opacity-80 md:aspect-square"
                 />
               </a>

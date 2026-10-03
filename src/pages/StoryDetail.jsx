@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
+import { getStoryBySlug } from '../data/stories';
 import YouTubeEmbed from '../components/YouTubeEmbed';
 import Lightbox from '../components/Lightbox';
 import MasonryGrid from '../components/MasonryGrid';
-import SiteImage from '../content/SiteImage';
-import { useContent } from '../content/ContentProvider';
 
 /** 3×3 grid glyph for the "all stories" link, matching the reference. */
 function GridIcon() {
@@ -18,50 +17,22 @@ function GridIcon() {
 export default function StoryDetail() {
   const { slug } = useParams();
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const content = useContent();
+  const data = getStoryBySlug(slug);
 
   // Prev/next keeps this component mounted, so a viewer left open — via the
   // back button, say — would otherwise carry its index onto the next couple.
   useEffect(() => setLightboxIndex(null), [slug]);
 
-  const data = useMemo(() => {
-    if (!content) return undefined;
-    const index = content.stories.findIndex((s) => s.slug === slug);
-    if (index === -1) return null;
-
-    const stories = content.stories;
-    const story = stories[index];
-    const gallery = story.photoIds.map((id) => content.media[id]).filter(Boolean);
-
-    return {
-      story,
-      banner: content.media[story.bannerId] ?? null,
-      gallery,
-      // Known up front, so the masonry packs correctly on the first paint
-      // instead of downloading every photo just to measure it.
-      ratios: gallery.map((m) => m.width / m.height || 1),
-      prev: stories[(index - 1 + stories.length) % stories.length],
-      next: stories[(index + 1) % stories.length],
-    };
-  }, [content, slug]);
-
-  if (data === undefined) return <div className="min-h-screen bg-cream" />;
   // Unknown couple → back to the list, mirroring the site's fall-through behaviour.
-  if (data === null) return <Navigate to="/stories" replace />;
+  if (!data) return <Navigate to="/stories" replace />;
 
-  const { story, banner, gallery, ratios, prev, next } = data;
+  const { story, prev, next } = data;
 
   return (
     <>
       {/* Hero banner (couple name is burnt into the artwork) + title */}
       <section className="w-full bg-cream px-[6vw] pt-[3vw]">
-        <SiteImage
-          media={banner}
-          alt={story.name}
-          loading="eager"
-          sizes="88vw"
-          className="aspect-[1076/323] w-full object-cover"
-        />
+        <img src={story.banner} alt={story.name} className="aspect-[1076/323] w-full object-cover" />
         <h1 className="mt-[1.4vw] font-display text-h1 uppercase leading-[1.15] tracking-[0.02em] text-ink">
           {story.name}
         </h1>
@@ -69,7 +40,7 @@ export default function StoryDetail() {
 
       {/* Featured wedding film */}
       <section className="w-full bg-cream px-[6vw] py-[2.4vw]">
-        <YouTubeEmbed id={story.youtubeId} title={`${story.name} — Wedding Film`} />
+        <YouTubeEmbed id={story.filmId} title={`${story.name} — Wedding Film`} />
       </section>
 
       {/*
@@ -81,23 +52,23 @@ export default function StoryDetail() {
       */}
       <section className="w-full bg-cream px-[6vw] pb-[3vw]">
         <MasonryGrid
-          images={gallery}
-          ratios={ratios}
+          images={story.gallery}
           gapClass="gap-[1vw]"
           columns={[2, 3]}
-          renderItem={(media, i) => (
+          renderItem={(src, i) => (
             <button
-              key={media.id}
+              key={`${src}-${i}`}
               type="button"
               onClick={() => setLightboxIndex(i)}
-              aria-label={`Open image ${i + 1} of ${gallery.length}`}
+              aria-label={`Open image ${i + 1} of ${story.gallery.length}`}
               /* Inset outline: the cell clips overflow on hover, so an outset
                  ring would be cut off. */
               className="block w-full overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-maroon"
             >
-              <SiteImage
-                media={media}
-                sizes="(max-width: 767px) 44vw, 29vw"
+              <img
+                src={src}
+                alt=""
+                loading="lazy"
                 className="w-full transition-transform duration-[900ms] ease-out hover:scale-[1.04]"
               />
             </button>
@@ -131,7 +102,7 @@ export default function StoryDetail() {
       </nav>
 
       <Lightbox
-        images={gallery}
+        images={story.gallery}
         index={lightboxIndex}
         onClose={() => setLightboxIndex(null)}
         onNavigate={setLightboxIndex}

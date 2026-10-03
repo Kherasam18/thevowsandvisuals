@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Button from '../components/Button';
 import Lightbox from '../components/Lightbox';
 import MasonryGrid from '../components/MasonryGrid';
-import SiteImage from '../content/SiteImage';
-import { useContent } from '../content/ContentProvider';
+import hero1 from '../assets/galleries/hero-01.jpg';
+import hero2 from '../assets/galleries/hero-02.jpg';
+import hero3 from '../assets/galleries/hero-03.jpg';
 
 /**
  * Hero slideshow.
@@ -23,27 +24,21 @@ import { useContent } from '../content/ContentProvider';
  * auto-advance or start at a different index; the arrows are the only
  * navigation actually observed, so this is manual-only.
  */
+const SLIDES = [hero1, hero2, hero3];
+
+// 25 masonry images, ordered by filename to match source DOM order.
+const GRID = Object.entries(
+  import.meta.glob('../assets/galleries/grid-*.jpg', { eager: true, import: 'default' })
+)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, src]) => src);
+
 export default function Galleries() {
   const [slide, setSlide] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const content = useContent();
 
-  const { slides, grid, ratios } = useMemo(() => {
-    if (!content) return { slides: [], grid: [], ratios: [] };
-    const pick = (ids) => ids.map((id) => content.media[id]).filter(Boolean);
-    const wall = pick(content.galleries.selectedIds);
-    return {
-      slides: pick(content.galleries.heroIds),
-      // The wall is whatever the studio ticked in the admin, in that order.
-      grid: wall,
-      ratios: wall.map((m) => m.width / m.height || 1),
-    };
-  }, [content]);
-
-  const prev = () => setSlide((s) => (s - 1 + slides.length) % slides.length);
-  const next = () => setSlide((s) => (s + 1) % slides.length);
-
-  if (!content) return <div className="min-h-screen bg-cream" />;
+  const prev = () => setSlide((s) => (s - 1 + SLIDES.length) % SLIDES.length);
+  const next = () => setSlide((s) => (s + 1) % SLIDES.length);
 
   return (
     <>
@@ -57,14 +52,12 @@ export default function Galleries() {
         {/* Hero slideshow */}
         <section className="relative order-1 w-full">
           <div className="relative h-[34vw] min-h-[258px] w-full overflow-hidden md:min-h-[240px]">
-            {slides.map((media, i) => (
-              <SiteImage
-                key={media.id}
-                media={media}
+            {SLIDES.map((src, i) => (
+              <img
+                key={src}
+                src={src}
                 alt=""
                 aria-hidden={i !== slide}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                sizes="100vw"
                 className={
                   'absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out ' +
                   (i === slide ? 'opacity-100' : 'opacity-0')
@@ -145,21 +138,21 @@ export default function Galleries() {
         <section className="order-4 w-full bg-cream pb-[4vw] pt-[3vw]">
           <div className="px-[10px]">
             <MasonryGrid
-              images={grid}
-              ratios={ratios}
-              renderItem={(media, i) => (
+              images={GRID}
+              renderItem={(src, i) => (
                 <button
-                  key={media.id}
+                  key={src}
                   type="button"
                   onClick={() => setLightboxIndex(i)}
-                  aria-label={`Open image ${i + 1} of ${grid.length}`}
+                  aria-label={`Open image ${i + 1} of ${GRID.length}`}
                   /* Inset outline: the cell clips overflow on hover, so an outset
                      ring would be cut off. */
                   className="block w-full overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-maroon"
                 >
-                  <SiteImage
-                    media={media}
-                    sizes="(max-width: 767px) 50vw, 25vw"
+                  <img
+                    src={src}
+                    alt=""
+                    loading="lazy"
                     className="w-full transition-transform duration-[600ms] ease-out hover:scale-[1.04]"
                   />
                 </button>
@@ -170,7 +163,7 @@ export default function Galleries() {
       </div>
 
       <Lightbox
-        images={grid}
+        images={GRID}
         index={lightboxIndex}
         onClose={() => setLightboxIndex(null)}
         onNavigate={setLightboxIndex}

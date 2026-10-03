@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import animateScrollTo from '../lib/animateScrollTo';
+import SiteImage from '../content/SiteImage';
 
 const AUTOPLAY_MS = 3500;
 
@@ -150,10 +151,10 @@ export default function StoriesCarousel({ items }) {
             aria-hidden={i >= items.length ? 'true' : undefined}
             className="group relative w-[78%] shrink-0 snap-start overflow-hidden sm:w-[48%] md:w-[calc((107%-10vw)/3)]"
           >
-            <img
-              src={item.image}
+            <SiteImage
+              media={item.media}
               alt={i < items.length ? item.name : ''}
-              loading="lazy"
+              sizes="(max-width: 639px) 78vw, (max-width: 767px) 48vw, 32vw"
               className="aspect-[1/1.45] w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
             />
 

@@ -1,115 +1,65 @@
+import { useMemo } from 'react';
 import Navbar from '../components/Navbar';
 import BackgroundVideo from '../components/BackgroundVideo';
 import Button from '../components/Button';
 import YouTubeEmbed from '../components/YouTubeEmbed';
 import StoriesCarousel from '../components/StoriesCarousel';
 import TestimonialCarousel from '../components/TestimonialCarousel';
+import SiteImage from '../content/SiteImage';
+import { useContent } from '../content/ContentProvider';
+import { largestUrl } from '../content/media';
 
-import heroPoster from '../assets/home/hero-poster.jpg';
 import markScript from '../assets/brand/mark-script.png';
-import vibrant from '../assets/home/vibrant.jpg';
-import timeless from '../assets/home/timeless.jpg';
-import authentic from '../assets/home/authentic.jpg';
-
-import story1 from '../assets/home/story-01-kritasha-akhil.jpg';
-import story2 from '../assets/home/story-02-payal-harsh.jpg';
-import story3 from '../assets/home/story-03-kiran-sanjeev.jpg';
-import story4 from '../assets/home/story-04-pavan-suchi.jpg';
-import story5 from '../assets/home/story-05-prithvi-praise.jpg';
-import story6 from '../assets/home/story-06-kashish-naman.jpg';
-
-import preetA from '../assets/home/praise-preet-a.jpg';
-import preetB from '../assets/home/praise-preet-b.jpg';
-import prithviA from '../assets/home/praise-prithvi-a.jpg';
-import prithviB from '../assets/home/praise-prithvi-b.jpg';
-import poorviA from '../assets/home/praise-poorvi-a.jpg';
-import poorviB from '../assets/home/praise-poorvi-b.jpg';
-
-// 15-image grid, ordered by filename to match source DOM order.
-const GRID = Object.entries(
-  import.meta.glob('../assets/home/grid-*.{jpg,png}', { eager: true, import: 'default' })
-)
-  .sort(([a], [b]) => a.localeCompare(b))
-  .map(([, src]) => src);
-
-const STORIES = [
-  { image: story1, name: 'Kritasha & Akhil' },
-  { image: story2, name: 'Payal & Harsh' },
-  { image: story3, name: 'Kiran & Sanjeev' },
-  { image: story4, name: 'Pavan & Suchi' },
-  { image: story5, name: 'Prithvi & Raghavi' },
-  { image: story6, name: 'Kashish & Naman' }
-];
 
 /*
+  Layout for the three pillars, keyed to the content record.
+
   Measured off Home.mp4 at 1920px: the centre image is ~810px wide against
   ~476px for the outer two (roughly 1.7x), it sits higher and runs lower, and
   its label is about twice the size. The labels overlap the images rather than
-  sitting beneath them.
+  sitting beneath them. Only the photo behind each one is editable.
 */
-const PILLARS = [
-  {
-    image: vibrant,
-    label: 'VIBRANT',
-    offset: 'mt-[7vw] md:mt-[9vw]',
-    text: 'text-[11px] sm:text-[calc(59*var(--sf)/1600)]',
-  },
-  {
-    image: timeless,
-    label: 'TIMELESS',
-    offset: 'mt-0 md:mt-0',
-    text: 'text-[20px] sm:text-[calc(118*var(--sf)/1600)]',
-  },
-  {
-    image: authentic,
-    label: 'AUTHENTIC',
-    offset: 'mt-[9vw] md:mt-[11vw]',
-    text: 'text-[11px] sm:text-[calc(59*var(--sf)/1600)]',
-  },
-];
-
-/*
-  The four Home video ids are NOT in the saved HTML — Wix injected them
-  client-side after load, so the <div>s captured empty. Recovered by reading
-  the video titles off the YouTube posters in Home.mp4 and matching them to
-  the ids saved in Films_files/.
-*/
-const REELS = [
-  { id: 'SQNIM3_y2pg', title: 'Ragini & Nikhil Teaser' },
-  { id: 'RwPTps6eATg', title: 'Jas & Poorvi Cinematic Wedding Teaser' },
-  { id: '6mH5K-GdnhA', title: 'Nikhil & Rachna' },
-  { id: 'jzhG7BCSCKE', title: 'Anirudha & Shuchi' },
-];
-
-const TESTIMONIALS = [
-  {
-    name: 'Preet & Manny',
-    images: [preetA, preetB],
-    quote:
-      "I'm someone who usually dislikes photography and videography, but my experience with this team was exceptional. They're passionate, respectful, and incredibly thorough. The final results speak for themselves-absolutely stunning. Hats off to the entire team!",
-  },
-  {
-    name: 'Prithvi & Raghavi',
-    images: [prithviA, prithviB],
-    quote:
-      'The Vows and Visuals team, thank you for the incredible work! The photos and videos are absolutely stunning and full of emotion.You captured every moment so beautifully, and we truly felt your passion and warmth throughout. We couldn’t have asked for a better team!',
-  },
-  {
-    name: 'Poorvi & Jass',
-    images: [poorviA, poorviB],
-    quote:
-      'The Vows and Visuals team were incredible! They captured our wedding beautifully, worked tirelessly, and felt like family throughout. One of the best choices we made.They captured our wedding beautifully, even with limited time for portraits, and created magic through their photos and videos. The wedding film makes us relive the day every time we watch it.',
-  },
-];
+const PILLAR_STYLE = {
+  vibrant: { offset: 'mt-[7vw] md:mt-[9vw]', text: 'text-[11px] sm:text-[calc(59*var(--sf)/1600)]' },
+  timeless: { offset: 'mt-0 md:mt-0', text: 'text-[20px] sm:text-[calc(118*var(--sf)/1600)]' },
+  authentic: { offset: 'mt-[9vw] md:mt-[11vw]', text: 'text-[11px] sm:text-[calc(59*var(--sf)/1600)]' },
+};
 
 export default function Home() {
+  const content = useContent();
+
+  const view = useMemo(() => {
+    if (!content) return null;
+    const { media, home } = content;
+    const pick = (id) => media[id] ?? null;
+
+    return {
+      heroPoster: pick(home.heroPosterId),
+      heroVideoSrc: home.heroVideoSrc,
+      grid: home.gridIds.map(pick).filter(Boolean),
+      pillars: home.pillars.map((p) => ({ ...p, ...PILLAR_STYLE[p.key], media: pick(p.mediaId) })),
+      // The client's rule: the strip mirrors the Stories page, one card each.
+      stories: content.stories
+        .map((s) => ({ name: s.name, slug: s.slug, media: pick(s.coverId) ?? pick(s.bannerId) }))
+        .filter((s) => s.media),
+      reels: content.films.filter((f) => f.showOnHome && f.youtubeId),
+      testimonials: content.home.praise.map((p) => ({
+        name: p.name,
+        quote: p.quote,
+        media: [pick(p.mediaIds[0]), pick(p.mediaIds[1])],
+      })),
+    };
+  }, [content]);
+
+  if (!view) return <div className="min-h-screen bg-cream" />;
+
   return (
     <>
       {/* ---------- Hero: full-viewport background video ---------- */}
       <section className="relative w-full">
         <BackgroundVideo
-          src="/video/hero.mp4"
-          poster={heroPoster}
+          src={view.heroVideoSrc}
+          poster={view.heroPoster ? largestUrl(view.heroPoster, 'webp') : undefined}
           label="Khalyani & Aseem"
           className="h-screen w-full"
         />
@@ -156,12 +106,12 @@ export default function Home() {
       <section className="w-full bg-cream">
         {/* Source shows 3 across on a phone, not 2. */}
         <ul className="grid grid-cols-3 gap-[4px] md:grid-cols-5">
-          {GRID.map((src, i) => (
-            <li key={src} className="overflow-hidden">
-              <img
-                src={src}
-                alt=""
+          {view.grid.map((media, i) => (
+            <li key={media.id} className="overflow-hidden">
+              <SiteImage
+                media={media}
                 loading={i < 5 ? 'eager' : 'lazy'}
+                sizes="(max-width: 767px) 33vw, 20vw"
                 className="aspect-square w-full object-cover transition-transform duration-[700ms] ease-out hover:scale-[0.97]"
               />
             </li>
@@ -173,12 +123,12 @@ export default function Home() {
       <section className="w-full bg-cream px-[2.5vw] py-[10vw]">
         {/* All three sit side by side at every width, as in the source. */}
         <ul className="grid grid-cols-[1fr_1.4fr_1fr] items-start gap-[1.6vw]">
-          {PILLARS.map((pillar) => (
-            <li key={pillar.label} className={`pillar-desat relative ${pillar.offset}`}>
-              <img
-                src={pillar.image}
+          {view.pillars.map((pillar) => (
+            <li key={pillar.key} className={`pillar-desat relative ${pillar.offset}`}>
+              <SiteImage
+                media={pillar.media}
                 alt=""
-                loading="lazy"
+                sizes="(max-width: 767px) 40vw, 30vw"
                 className="aspect-[3/4] w-full object-cover"
               />
               <span
@@ -216,7 +166,7 @@ export default function Home() {
         </div>
 
         <div className="order-3 md:order-none">
-          <StoriesCarousel items={STORIES} />
+          <StoriesCarousel items={view.stories} />
         </div>
 
         <div className="contents md:mt-[2.6vw] md:flex md:flex-row md:items-end md:justify-between md:gap-[2vw] md:px-[2vw]">
@@ -245,8 +195,8 @@ export default function Home() {
 
       {/* ---------- Video band with angled edges ---------- */}
       < BackgroundVideo
-        src="/video/hero.mp4"
-        poster={heroPoster}
+        src={view.heroVideoSrc}
+        poster={view.heroPoster ? largestUrl(view.heroPoster, 'webp') : undefined}
         label="Khalyani & Aseem"
         fixedBackdrop
         /* 57vw is far below the floor on a phone, so the mobile band is set by
@@ -261,9 +211,9 @@ export default function Home() {
       {/* ---------- Four reels ---------- */}
       < section className="w-full bg-cream px-[6vw] pb-[4vw] pt-[21vw] md:py-[4vw]" >
         <ul className="grid grid-cols-1 gap-[3vw] md:grid-cols-2">
-          {REELS.map((reel) => (
-            <li key={reel.id}>
-              <YouTubeEmbed id={reel.id} title={reel.title} />
+          {view.reels.map((film) => (
+            <li key={film.id}>
+              <YouTubeEmbed id={film.youtubeId} title={film.title} />
             </li>
           ))}
         </ul>
@@ -287,7 +237,7 @@ export default function Home() {
         </h2>
 
         <div className="relative z-20 mt-[14vw] md:-mt-[2vw]">
-          <TestimonialCarousel items={TESTIMONIALS} />
+          <TestimonialCarousel items={view.testimonials} />
         </div>
       </section>
     </>

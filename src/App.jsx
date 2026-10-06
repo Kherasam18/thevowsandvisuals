@@ -9,6 +9,7 @@ import Galleries from './pages/Galleries';
 import Enquiry from './pages/Enquiry';
 import About from './pages/About';
 import { useContentStatus } from './content/ContentProvider';
+import usePageViews from './lib/usePageViews';
 
 // Split out of the public bundle: only the studio ever opens it.
 const Admin = lazy(() => import('./admin/Admin.jsx'));
@@ -80,6 +81,7 @@ function PreviewBar() {
 
 export default function App() {
   const { status, error, preview } = useContentStatus();
+  usePageViews();
 
   return (
     <Routes>

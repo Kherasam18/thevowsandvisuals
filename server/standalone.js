@@ -59,11 +59,27 @@ if (!fs.existsSync(distDir)) {
   process.exit(1);
 }
 
+/*
+  On the admin host, send the bare root to the dashboard.
+
+  This server carries the whole app, so without it admin.<domain>/ shows the
+  public site and the dashboard hides at admin.<domain>/admin — an address
+  nobody guesses and everybody mistypes. Off by default, because the same
+  server is used locally to preview the public build.
+*/
+const rootRedirect = process.env.ADMIN_ROOT_REDIRECT;
+
 http
   .createServer(async (req, res) => {
     if (await handleApi(req, res)) return;
 
     const url = new URL(req.url, 'http://localhost');
+
+    if (rootRedirect && url.pathname === '/') {
+      res.writeHead(302, { Location: rootRedirect });
+      res.end();
+      return;
+    }
     const rel = path.normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, '');
     let file = path.join(distDir, rel);
 

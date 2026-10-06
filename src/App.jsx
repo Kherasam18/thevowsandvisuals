@@ -13,6 +13,37 @@ import { useContentStatus } from './content/ContentProvider';
 // Split out of the public bundle: only the studio ever opens it.
 const Admin = lazy(() => import('./admin/Admin.jsx'));
 
+/** Where the admin actually runs. Only set on the public deployment. */
+const ADMIN_URL = import.meta.env.VITE_ADMIN_URL ?? '';
+
+/**
+ * The admin, or a redirect to where it works.
+ *
+ * The same bundle is served by two hosts, but only one of them has the API
+ * behind it. On the public site /admin would otherwise render a sign-in form
+ * that cannot possibly succeed — the request for the session comes back as the
+ * HTML page, and the failure reads like a bug rather than a wrong address.
+ */
+function AdminRoute() {
+  if (ADMIN_URL) {
+    try {
+      const target = new URL(ADMIN_URL);
+      if (target.host !== window.location.host) {
+        window.location.replace(`${target.origin}/admin`);
+        return null;
+      }
+    } catch {
+      // A malformed value should not lock anyone out; fall through and load it.
+    }
+  }
+
+  return (
+    <Suspense fallback={<div className="p-8 font-sans text-sm text-neutral-500">Loading…</div>}>
+      <Admin />
+    </Suspense>
+  );
+}
+
 /** Shown if the content document cannot be fetched at all. */
 function ContentUnavailable({ error }) {
   return (
@@ -52,14 +83,7 @@ export default function App() {
 
   return (
     <Routes>
-      <Route
-        path="/admin/*"
-        element={
-          <Suspense fallback={<div className="p-8 font-sans text-sm text-neutral-500">Loading…</div>}>
-            <Admin />
-          </Suspense>
-        }
-      />
+      <Route path="/admin/*" element={<AdminRoute />} />
 
       <Route
         element={

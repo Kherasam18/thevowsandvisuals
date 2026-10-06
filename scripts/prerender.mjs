@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BUSINESS, locationLine } from '../src/data/business.js';
+import { clamp, metaFor } from '../src/data/pageMeta.js';
 
 /*
   Writes a real HTML file for every page, plus robots.txt and sitemap.xml.
@@ -29,11 +30,6 @@ const SITE = BUSINESS.url;
 const escape = (s = '') =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** Trimmed to the length search results actually show. */
-const clamp = (s, n = 155) => {
-  const text = String(s).replace(/\s+/g, ' ').trim();
-  return text.length <= n ? text : `${text.slice(0, n - 1).replace(/[\s,.;]+\S*$/, '')}…`;
-};
 
 // ---------------------------------------------------------------------------
 // Content
@@ -86,7 +82,6 @@ const businessSchema = {
   '@id': `${SITE}/#business`,
   additionalType: 'https://schema.org/PhotographAction',
   name: BUSINESS.name,
-  description: BUSINESS.tagline,
   url: SITE,
   telephone: BUSINESS.telephone,
   email: BUSINESS.email,
@@ -127,11 +122,12 @@ const faqSchema = () => {
 // ---------------------------------------------------------------------------
 const where = 'India, Dubai, Thailand and Bali';
 
+// Titles and descriptions come from the shared module the running app also
+// uses, so a prerendered page and the same page reached by clicking never
+// disagree. Only the body text and sitemap priority are decided here.
 const pages = [
   {
     route: '/',
-    title: `${BUSINESS.name} — Wedding Photographer in ${BUSINESS.address.locality}, ${BUSINESS.address.region}`,
-    description: BUSINESS.tagline,
     priority: '1.0',
     body: [
       `${BUSINESS.name} is a wedding photography and film studio based in ${locationLine()}.`,
@@ -141,32 +137,21 @@ const pages = [
   },
   {
     route: '/stories',
-    title: `Real Weddings — ${BUSINESS.name}`,
-    description: `Full wedding stories photographed by ${BUSINESS.name} across ${where}.`,
     priority: '0.9',
     body: (content?.stories ?? []).map((s) => s.name).filter(Boolean),
   },
   {
     route: '/films',
-    title: `Wedding Films — ${BUSINESS.name}`,
-    description: `Wedding films and teasers by ${BUSINESS.name}, a studio based in ${locationLine()}.`,
     priority: '0.8',
     body: (content?.films ?? []).map((f) => [f.title, f.kind].filter(Boolean).join(' — ')),
   },
   {
     route: '/galleries',
-    title: `Wedding Photography Galleries — ${BUSINESS.name}`,
-    description: `Selected wedding photographs by ${BUSINESS.name}, shot across ${where}.`,
     priority: '0.8',
     body: ['Step into a world where love twirls in slow motion, trapped in the misty haze of time.'],
   },
   {
     route: '/about',
-    title: `About — Wedding Photographers in ${BUSINESS.address.locality}, ${BUSINESS.address.region}`,
-    description: clamp(
-      content?.about?.heroLine ||
-        `Meet the team behind ${BUSINESS.name}, photographing weddings across ${where}.`,
-    ),
     priority: '0.7',
     schema: faqSchema(),
     body: [
@@ -179,8 +164,6 @@ const pages = [
   },
   {
     route: '/enquiry',
-    title: `Enquire — ${BUSINESS.name}`,
-    description: `Check availability with ${BUSINESS.name} for a wedding in ${where}.`,
     priority: '0.6',
     body: [`Tell us about your wedding. We are based in ${locationLine()} and travel for weddings.`],
   },
@@ -189,14 +172,10 @@ const pages = [
     .filter((s) => s.slug && s.name)
     .map((s) => ({
       route: `/stories/${s.slug}`,
-      title: `${s.name} — Wedding Story by ${BUSINESS.name}`,
-      description: clamp(
-        `The wedding of ${s.name}, photographed by ${BUSINESS.name}. ${s.photoIds?.length ?? 0} photographs${s.youtubeId ? ' and a wedding film' : ''}.`,
-      ),
       priority: '0.7',
       body: [`The wedding of ${s.name}, photographed by ${BUSINESS.name}.`],
     })),
-];
+].map((page) => ({ ...page, ...metaFor(page.route, content) }));
 
 // ---------------------------------------------------------------------------
 // Write

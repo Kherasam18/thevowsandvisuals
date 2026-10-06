@@ -1,0 +1,21 @@
+{
+  // Deploys the built site as static assets, with no Worker script.
+  //
+  // Without this, `wrangler deploy` assumes a Worker project, goes looking for
+  // the Cloudflare Vite plugin in vite.config.js and fails to parse it. The
+  // site is a plain client-side bundle: there is nothing for a Worker to do.
+  //
+  // The admin API is NOT deployed here — it needs Node and sharp, which Workers
+  // cannot run, and lives on Railway instead.
+  "name": "thevowsandvisuals",
+  "compatibility_date": "2026-10-06",
+
+  "assets": {
+    "directory": "./dist",
+
+    // React Router owns the URLs. Without this, loading /about or /stories/x
+    // directly would 404, because no such file exists in the build — only
+    // index.html does, and the router reads the path from there.
+    "not_found_handling": "single-page-application"
+  }
+}

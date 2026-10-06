@@ -75,16 +75,15 @@ export default defineConfig(({ mode }) => ({
     // Honour a PORT supplied by the environment; fall back to Vite's default.
     port: process.env.PORT ? Number(process.env.PORT) : 5173,
   },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // The admin is only ever opened by the studio; keeping it out of the
-          // public bundle means visitors never download it.
-          if (id.includes('/src/admin/')) return 'admin';
-          return undefined;
-        },
-      },
-    },
-  },
+  /*
+    No manualChunks on purpose.
+
+    Forcing /src/admin/ into a named chunk looked like it kept the admin out of
+    the public bundle, but it did the opposite: the shared vendor code landed in
+    that chunk too, so the entry imported it statically and index.html preloaded
+    it. Every visitor was fetching 218 KB of admin code.
+
+    App.jsx loads the admin through React.lazy, which is enough — Rollup splits
+    it into a chunk that is only requested when someone opens /admin.
+  */
 }));

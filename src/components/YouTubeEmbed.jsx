@@ -6,9 +6,9 @@
  * original site's analytics. The recordings show click-to-play (no autoplay),
  * which is the default behaviour here.
  */
-export default function YouTubeEmbed({ id, title, className = '' }) {
+export default function YouTubeEmbed({ id, title, className = '', aspectClass = 'aspect-video' }) {
   return (
-    <div className={`aspect-video w-full overflow-hidden bg-black ${className}`}>
+    <div className={`${aspectClass} w-full overflow-hidden bg-black ${className}`}>
       <iframe
         src={`https://www.youtube-nocookie.com/embed/${id}?rel=0`}
         title={title}

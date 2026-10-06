@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import animateScrollTo from '../lib/animateScrollTo';
+import SiteImage from '../content/SiteImage';
 
 const AUTOPLAY_MS = 3500;
 
@@ -144,27 +146,41 @@ export default function StoriesCarousel({ items }) {
         ref={trackRef}
         className="hide-scrollbar flex snap-x snap-mandatory gap-[2.4vw] overflow-x-auto scroll-smooth py-2"
       >
-        {loop.map((item, i) => (
-          <li
-            key={`${item.name}-${i}`}
-            aria-hidden={i >= items.length ? 'true' : undefined}
-            className="group relative w-[78%] shrink-0 snap-start overflow-hidden sm:w-[48%] md:w-[calc((107%-10vw)/3)]"
-          >
-            <img
-              src={item.image}
-              alt={i < items.length ? item.name : ''}
-              loading="lazy"
-              className="aspect-[1/1.45] w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
-            />
+        {loop.map((item, i) => {
+          // The run is rendered twice to make the wrap seamless; the second
+          // copy is hidden from assistive tech and taken out of the tab order,
+          // so every couple is reachable once rather than twice.
+          const isDuplicate = i >= items.length;
 
-            {/* Hover caption */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-[1.6vw] opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100">
-              <span className="font-serif text-[calc(20*var(--sf)/1600)] uppercase tracking-[0.16em] text-white">
-                {item.name}
-              </span>
-            </div>
-          </li>
-        ))}
+          return (
+            <li
+              key={`${item.slug ?? item.name}-${i}`}
+              aria-hidden={isDuplicate ? 'true' : undefined}
+              className="group relative w-[78%] shrink-0 snap-start overflow-hidden sm:w-[48%] md:w-[calc((107%-10vw)/3)]"
+            >
+              <Link
+                to={`/stories/${item.slug}`}
+                tabIndex={isDuplicate ? -1 : undefined}
+                aria-label={`${item.name} — view this story`}
+                className="block focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-maroon"
+              >
+                <SiteImage
+                  media={item.media}
+                  alt={isDuplicate ? '' : item.name}
+                  sizes="(max-width: 639px) 78vw, (max-width: 767px) 48vw, 32vw"
+                  className="aspect-[1/1.45] w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
+                />
+
+                {/* Hover caption */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-[1.6vw] opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100">
+                  <span className="font-serif text-[calc(20*var(--sf)/1600)] uppercase tracking-[0.16em] text-white">
+                    {item.name}
+                  </span>
+                </div>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
 
       {/* Navigation — the source shows only the forward control on a phone. */}

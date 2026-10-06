@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { NAV_LINKS, SOCIALS, WHATSAPP_URL } from '../data/site';
 import MobileMenu from './MobileMenu';
-import wordmark from '../assets/brand/logo-wordmark.png';
-import wordmarkLight from '../assets/brand/logo-wordmark-light.png';
+import wordmark from '../assets/brand/logo-badge.png';
+import wordmarkLight from '../assets/brand/logo-badge-light.png';
 import whatsapp from '../assets/icons/whatsapp.png';
 
 /**
@@ -154,11 +154,11 @@ export default function Navbar({ overlay = false }) {
               src={wordmark}
               alt="The Vows and Visuals"
               className={
-                /* The source's phone logo is a compact, tall mark; ours is a
-                   wide lockup, so it is sized to carry the same visual weight
-                   rather than the same height — matching height outright would
-                   run it nearly half the screen wide. */
-                'h-[10vw] w-auto max-h-[96px] md:h-[6vw] transition-opacity duration-300 ease-out ' +
+                /* The badge is square, where the old lockup was 2.3:1, so the
+                   previous 10vw would now render it barely 39px across. Height
+                   can be matched straight to the source's compact mark (~64px
+                   on a phone) without the width running away. */
+                'h-[16vw] w-auto max-h-[96px] md:h-[6vw] transition-opacity duration-300 ease-out ' +
                 (lightContent ? 'opacity-0' : 'opacity-100')
               }
             />

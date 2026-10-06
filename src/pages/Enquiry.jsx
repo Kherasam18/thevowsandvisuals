@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
-import { SOCIALS, CONTACT } from '../data/site';
-import hero from '../assets/enquiry/hero.jpg';
+import { SOCIALS, CONTACT, WHATSAPP_NUMBER } from '../data/site';
+import SiteImage from '../content/SiteImage';
+import { useContent } from '../content/ContentProvider';
 
 const COUNTRY_CODES = ['+91', '+971', '+66', '+62', '+44', '+1', '+61', '+65'];
 
@@ -15,7 +16,6 @@ const EMPTY = {
   weddingDate: '',
   services: [],
   message: '',
-  altEmail: '',
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,15 +23,49 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function validate(values) {
   const errors = {};
   if (!values.name.trim()) errors.name = 'Please enter the bride & groom name.';
-  if (!values.email.trim()) errors.email = 'Please enter an email address.';
-  else if (!EMAIL_RE.test(values.email.trim())) errors.email = 'Please enter a valid email address.';
+  // Email is optional — the enquiry travels by WhatsApp, so the phone number is
+  // what actually matters. It is still checked when one is given.
+  if (values.email.trim() && !EMAIL_RE.test(values.email.trim()))
+    errors.email = 'Please enter a valid email address.';
   if (!values.phone.trim()) errors.phone = 'Please enter a phone number.';
   if (!values.location.trim()) errors.location = 'Please enter the wedding location.';
   if (!values.weddingDate) errors.weddingDate = 'Please choose a wedding date.';
+  if (!values.services.length) errors.services = 'Please choose at least one service.';
   if (!values.message.trim()) errors.message = 'Please tell us a little about your wedding.';
-  if (values.altEmail.trim() && !EMAIL_RE.test(values.altEmail.trim()))
-    errors.altEmail = 'Please enter a valid email address.';
   return errors;
+}
+
+/** "2026-12-01" → "1 December 2026", read in the sender's own timezone. */
+function formatWeddingDate(iso) {
+  const [y, m, d] = (iso ?? '').split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  // Built from parts: `new Date("2026-12-01")` is UTC midnight and slips to the
+  // previous day for anyone west of Greenwich.
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+/** The enquiry, laid out so it is readable as a WhatsApp message. */
+function buildMessage(values) {
+  const lines = [
+    'New enquiry from the website',
+    '',
+    `Bride & Groom: ${values.name.trim()}`,
+    `Phone: ${values.countryCode} ${values.phone.trim()}`,
+  ];
+  if (values.email.trim()) lines.push(`Email: ${values.email.trim()}`);
+  lines.push(
+    `Wedding date: ${formatWeddingDate(values.weddingDate)}`,
+    `Location: ${values.location.trim()}`,
+    `Services: ${values.services.join(', ')}`,
+    '',
+    'About the wedding:',
+    values.message.trim(),
+  );
+  return lines.join('\n');
 }
 
 // No width here — callers set it, so the phone country-code select can be
@@ -64,7 +98,10 @@ function FieldError({ id, children }) {
 export default function Enquiry() {
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState(null); // null | 'success'
+  const [status, setStatus] = useState(null); // null | 'handed-off'
+  const [whatsappUrl, setWhatsappUrl] = useState(null);
+  const content = useContent();
+  const hero = content?.media[content.enquiry.heroId] ?? null;
 
   const set = (key) => (e) => {
     const value = e.target.value;
@@ -80,9 +117,18 @@ export default function Enquiry() {
         ? v.services.filter((s) => s !== service)
         : [...v.services, service],
     }));
+    setErrors((prev) => (prev.services ? { ...prev, services: undefined } : prev));
     setStatus(null);
   };
 
+  /**
+   * Hands the enquiry to WhatsApp.
+   *
+   * The details are put into a draft message in the sender's own WhatsApp;
+   * nothing leaves the browser until they press send there. That keeps the
+   * studio's phone as the inbox with no server, no form service and no copy of
+   * anyone's details sitting in a database.
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
     const found = validate(values);
@@ -95,24 +141,32 @@ export default function Enquiry() {
       return;
     }
 
-    // TODO: wire up to a real backend / form service. Frontend-only build —
-    // nothing is persisted or sent anywhere.
-    console.log('[Enquiry] submitted:', {
-      ...values,
-      phone: `${values.countryCode} ${values.phone}`,
-    });
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(values))}`;
+    setWhatsappUrl(url);
 
-    setStatus('success');
-    setValues(EMPTY);
+    /*
+      Opened straight from the click. Anything awaited first spends the user
+      gesture and the browser treats the new tab as an unsolicited popup; if it
+      is blocked anyway, fall back to navigating this tab.
+    */
+    const opened = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!opened) window.location.href = url;
+
+    // The form is deliberately not cleared: the message is only a draft until
+    // it is sent, and clearing it would destroy their answers if WhatsApp
+    // failed to open.
+    setStatus('handed-off');
   };
 
   return (
     <>
       {/* Hero banner */}
       <section className="w-full">
-        <img
-          src={hero}
-          alt="Couple photographed on a snow-covered mountain ridge"
+        <SiteImage
+          media={hero}
+          alt={hero?.alt || 'Couple photographed on a snow-covered mountain ridge'}
+          loading="eager"
+          sizes="100vw"
           className="h-[26vw] min-h-[220px] w-full object-cover"
         />
       </section>
@@ -192,9 +246,7 @@ export default function Enquiry() {
             </div>
 
             <div>
-              <Label htmlFor="field-email" required>
-                Email (required)
-              </Label>
+              <Label htmlFor="field-email">Email (optional)</Label>
               <input
                 id="field-email"
                 type="email"
@@ -271,17 +323,24 @@ export default function Enquiry() {
               <FieldError id="err-weddingDate">{errors.weddingDate}</FieldError>
             </div>
 
-            <fieldset>
+            <fieldset
+              aria-invalid={!!errors.services}
+              aria-describedby={errors.services ? 'err-services' : undefined}
+            >
               <legend className="mb-1.5 font-serif text-[14px] leading-[1.4] text-ink">
                 Services Required
+                <span className="ml-1 text-rose">*</span>
               </legend>
               <div className="flex flex-col gap-2">
-                {SERVICES.map((service) => (
+                {SERVICES.map((service, i) => (
                   <label
                     key={service}
                     className="flex cursor-pointer items-center gap-2.5 font-serif text-[15px] text-ink"
                   >
                     <input
+                      /* The first box carries the group's id, so a validation
+                         failure can move focus here like any other field. */
+                      id={i === 0 ? 'field-services' : undefined}
                       type="checkbox"
                       checked={values.services.includes(service)}
                       onChange={() => toggleService(service)}
@@ -291,6 +350,7 @@ export default function Enquiry() {
                   </label>
                 ))}
               </div>
+              <FieldError id="err-services">{errors.services}</FieldError>
             </fieldset>
 
             <div>
@@ -310,31 +370,38 @@ export default function Enquiry() {
               <FieldError id="err-message">{errors.message}</FieldError>
             </div>
 
-            {/* Second, optional email field — present in the source form. */}
-            <div>
-              <Label htmlFor="field-altEmail">Email</Label>
-              <input
-                id="field-altEmail"
-                type="email"
-                value={values.altEmail}
-                onChange={set('altEmail')}
-                aria-invalid={!!errors.altEmail}
-                aria-describedby={errors.altEmail ? 'err-altEmail' : undefined}
-                className={FIELD_FULL}
-              />
-              <FieldError id="err-altEmail">{errors.altEmail}</FieldError>
-            </div>
           </div>
 
           <button
             type="submit"
+            aria-label="Send this enquiry by WhatsApp"
             className="mt-[1.6rem] w-[48%] min-w-[160px] bg-black py-2.5 font-serif text-[15px] text-white transition-opacity duration-200 hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-maroon"
           >
             Submit
           </button>
 
-          <p aria-live="polite" className="mt-3 min-h-[1.4em] font-serif text-[14px] text-maroon">
-            {status === 'success' && 'Thank you — your enquiry has been received. We’ll be in touch shortly.'}
+          {/*
+            Says what actually happened. The previous wording promised the
+            enquiry had been received, which was untrue — nothing is sent until
+            they press send inside WhatsApp, so the link is repeated here in
+            case the app did not open.
+          */}
+          <p aria-live="polite" className="mt-3 min-h-[1.4em] font-serif text-[14px] leading-[1.6] text-maroon">
+            {status === 'handed-off' && (
+              <>
+                Your details are ready in WhatsApp — press send there to reach us.{' '}
+                {whatsappUrl && (
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="underline underline-offset-2"
+                  >
+                    WhatsApp didn’t open?
+                  </a>
+                )}
+              </>
+            )}
           </p>
         </form>
       </section>

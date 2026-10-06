@@ -1,11 +1,15 @@
 import { useCallback, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import SiteImage from '../content/SiteImage';
 
 /**
  * Fullscreen image viewer for the Galleries grid.
  * Matches the Wix Pro Gallery viewer seen in Galleries.mp4: white backdrop,
  * close at top-right, expand at top-left, chevrons at the vertical centre,
  * image contained rather than cropped. Wraps around at both ends.
+ *
+ * `images` are media records. This is the one place that asks for the full
+ * ladder — it is the only view where a photo fills a 4K screen.
  */
 export default function Lightbox({ images, index, onClose, onNavigate }) {
   const open = index !== null && index >= 0;
@@ -40,7 +44,8 @@ export default function Lightbox({ images, index, onClose, onNavigate }) {
 
   if (!open) return null;
 
-  const src = images[index];
+  const media = images[index];
+  if (!media) return null;
 
   return (
     <div
@@ -96,11 +101,13 @@ export default function Lightbox({ images, index, onClose, onNavigate }) {
         <ChevronRight size={30} strokeWidth={1.25} />
       </button>
 
-      <img
+      <SiteImage
         id="lightbox-image"
-        key={src}
-        src={src}
-        alt={`Gallery image ${index + 1} of ${images.length}`}
+        key={media.id}
+        media={media}
+        alt={media.alt || `Gallery image ${index + 1} of ${images.length}`}
+        loading="eager"
+        sizes="(max-width: 767px) 92vw, 74vw"
         onClick={(e) => e.stopPropagation()}
         className="max-h-[82vh] max-w-[74vw] object-contain"
       />

@@ -22,7 +22,9 @@ export const SOCIALS = [
   { label: 'YouTube', href: 'https://www.youtube.com/', icon: youtube },
 ];
 
-export const WHATSAPP_URL = 'https://wa.me/+919034322947';
+/** Digits only, international format — wa.me does not accept a leading "+". */
+export const WHATSAPP_NUMBER = '919034322947';
+export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 export const INSTAGRAM_URL = 'https://www.instagram.com/thevowsandvisuals/?hl=en';
 
 export const CONTACT = {

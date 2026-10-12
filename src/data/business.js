@@ -15,15 +15,15 @@ export const BUSINESS = {
   // Where the studio is actually based. A real locality is what lets the site
   // compete for "wedding photographer in …" searches at all.
   address: {
-    locality: 'Sirsa',
+    locality: 'Gurgaon',
     region: 'Haryana',
     regionCode: 'HR',
     country: 'India',
     countryCode: 'IN',
   },
 
-  telephone: '+919034322947',
-  email: 'kashishnarula@gmail.com',
+  telephone: '+9255151051',
+  email: 'thevowsandvisuals@gmail.com',
 
   /* Where they shoot, not where they sit. These match the "Where we shoot"
      section on the About page — a claim that appears in one place and not the
@@ -46,9 +46,9 @@ export const BUSINESS = {
   /* Used in <meta description> and the structured data. Written as a sentence
      a person would read, because that is what gets quoted back by assistants. */
   tagline:
-    'Wedding photography and films by a small team based in Sirsa, Haryana — photographing weddings across India, Dubai, Thailand and Bali.',
+    'Wedding photography and films by a Kashish Narula based in Gurgaon, Haryana — photographing weddings across India, Dubai, Thailand and Bali.',
 };
 
-/** "Sirsa, Haryana, India" — for prose. */
+/** "Gurgaon, Haryana, India" — for prose. */
 export const locationLine = () =>
   `${BUSINESS.address.locality}, ${BUSINESS.address.region}, ${BUSINESS.address.country}`;

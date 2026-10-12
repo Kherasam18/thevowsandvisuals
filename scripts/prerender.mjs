@@ -82,6 +82,7 @@ const businessSchema = {
   '@id': `${SITE}/#business`,
   additionalType: 'https://schema.org/PhotographAction',
   name: BUSINESS.name,
+  description: BUSINESS.tagline,
   url: SITE,
   telephone: BUSINESS.telephone,
   email: BUSINESS.email,

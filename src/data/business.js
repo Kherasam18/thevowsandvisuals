@@ -22,7 +22,9 @@ export const BUSINESS = {
     countryCode: 'IN',
   },
 
-  telephone: '+9255151051',
+  // Full international form. Without the country code a parser reads "+92…"
+  // as Pakistan; site.js carries the same number as +91 9255151051.
+  telephone: '+919255151051',
   email: 'thevowsandvisuals@gmail.com',
 
   /* Where they shoot, not where they sit. These match the "Where we shoot"
@@ -46,7 +48,7 @@ export const BUSINESS = {
   /* Used in <meta description> and the structured data. Written as a sentence
      a person would read, because that is what gets quoted back by assistants. */
   tagline:
-    'Wedding photography and films by a Kashish Narula based in Gurgaon, Haryana — photographing weddings across India, Dubai, Thailand and Bali.',
+    'Wedding photography and films by Kashish Narula, based in Gurgaon, Haryana — photographing weddings across India, Dubai, Thailand and Bali.',
 };
 
 /** "Gurgaon, Haryana, India" — for prose. */

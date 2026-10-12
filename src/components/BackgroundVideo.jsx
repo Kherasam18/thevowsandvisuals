@@ -3,13 +3,27 @@ import { useEffect, useRef, useState } from 'react';
 /**
  * Autoplaying, muted, looping background video layered over its poster.
  *
- * The source .mp4 files aren't part of the capture (see public/video/README.md).
  * A <video> pointing at a missing file composites an opaque black box over the
- * poster — and under Vite's dev server the SPA fallback answers 200 with HTML,
- * so a plain onError/onCanPlay guard never fires. Probing the content-type
- * first means the element is only mounted when there is a real video to play,
- * and the poster shows cleanly until then.
+ * poster, and a same-origin miss is answered by the single-page fallback with
+ * 200 and HTML, so onError never fires. Probing the content-type first means
+ * the element is only mounted when there is really a video, and the poster
+ * shows cleanly until then.
+ *
+ * That probe is deliberately limited to same-origin sources. `fetch` obeys CORS
+ * where a <video> element does not, so probing a video on the media domain made
+ * playback depend on CORS headers surviving the CDN cache — which they did not:
+ * a copy cached from a request carrying no Origin was replayed to browsers
+ * without one, and the hero silently fell back to its poster. A cross-origin
+ * source is mounted directly and left to the element's own error handling.
  */
+const isSameOrigin = (src) => {
+  if (typeof window === 'undefined') return true;
+  try {
+    return new URL(src, window.location.href).origin === window.location.origin;
+  } catch {
+    return true; // not a parsable URL: treat as a local path
+  }
+};
 export default function BackgroundVideo({
   src,
   poster,
@@ -18,11 +32,22 @@ export default function BackgroundVideo({
   children,
   fixedBackdrop = false,
 }) {
-  const [hasVideo, setHasVideo] = useState(false);
+  // A cross-origin source needs no probe, so it starts mounted.
+  const [hasVideo, setHasVideo] = useState(() => Boolean(src) && !isSameOrigin(src));
   const containerRef = useRef(null);
   const videoRef = useRef(null);
 
   useEffect(() => {
+    if (!src) {
+      setHasVideo(false);
+      return undefined;
+    }
+
+    if (!isSameOrigin(src)) {
+      setHasVideo(true);
+      return undefined;
+    }
+
     let cancelled = false;
 
     fetch(src, { method: 'HEAD' })
